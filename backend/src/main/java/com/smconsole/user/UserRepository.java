@@ -1,6 +1,17 @@
 ﻿package com.smconsole.user;
 
-public class UserRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByLoginId(String loginId);
+    List<User> findByName(String name);
+    List<User> findByNameAndPhone(String name, String phone);
 
 }
 

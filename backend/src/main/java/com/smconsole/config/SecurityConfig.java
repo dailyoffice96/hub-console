@@ -4,8 +4,14 @@
 import com.smconsole.admin.LoginFailureHandler;
 import com.smconsole.admin.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 //@Configuration --> Spring에게 "이 클래스 안에는 @Bean이라고 표시된 메서드들이 있을 거고, 그것들을 미리 실행해서 부품(객체)들을 만들어놔라
 @Configuration
@@ -17,13 +23,41 @@ public class SecurityConfig {
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
 
-    // 1번: PasswordEncoder를 Bean으로 등록
-    // 힌트: BCryptPasswordEncoder를 그냥 new해서 반환하면 됩니다
-
+    // bcrypt라는 암호화 알고리즘
+        @Bean
+        public PasswordEncoder passwordEncoder(){
+            PasswordEncoder password = new BCryptPasswordEncoder();
+            return password;
+        }
 
 
     // 2번: SecurityFilterChain을 Bean으로 등록
     // 힌트: 매개변수로 HttpSecurity http를 받고, throws Exception 필요
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            http
+                    .authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/login").permitAll()
+                            .anyRequest().authenticated()
+
+
+//                            .requestMatchers("/admins/**").hasRole("SUPER_ADMIN")
+//                            .requestMatchers("/system-settings/**").hasRole("SUPER_ADMIN")
+//                            .requestMatchers("/inquiries/*/assign", "/incidents/*/assign").hasAnyRole("SUPER_ADMIN", "ADMIN")
+//                            .requestMatchers("/admins/*/force-logout", "/admins/*/lock").hasAnyRole("SUPER_ADMIN", "ADMIN")
+//                            .anyRequest().authenticated()   // 조회/수정/마스킹은 STAFF도 되니 그냥 로그인만 요구
+
+
+
+                    )
+                    .formLogin(form -> form
+                            .loginProcessingUrl("/login")
+                            .successHandler(loginSuccessHandler)
+                            .failureHandler(loginFailureHandler)
+                            .permitAll()
+                    );
+            return http.build();
+        }
 
 }
 

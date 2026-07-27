@@ -1,6 +1,7 @@
 ﻿package com.smconsole.admin;
 
-public class AdminRole {
 
+public enum AdminRole {
+    SUPER_ADMIN, ADMIN, STAFF
 }
 

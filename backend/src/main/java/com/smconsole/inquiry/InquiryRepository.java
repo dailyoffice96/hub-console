@@ -14,6 +14,6 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 
     Page<Inquiry> findByStatus(InquiryStatus inquiryStatus, Pageable pageable);
     Page<Inquiry> findByType(InquiryType type, Pageable pageable);
-    Page<Inquiry> findByAssigneeId(Long assigneeId, Pageable pageable);
+    Page<Inquiry> findByAssigneeName(String assigneeName, Pageable pageable);
 }
 

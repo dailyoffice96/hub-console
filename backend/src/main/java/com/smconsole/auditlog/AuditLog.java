@@ -1,4 +1,4 @@
-﻿package com.smconsole.auditlog;
+package com.smconsole.auditlog;
 
 public class AuditLog {
 

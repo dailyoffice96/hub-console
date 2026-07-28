@@ -1,4 +1,4 @@
-﻿package com.smconsole.admin;
+package com.smconsole.admin;
 
 
 public enum AdminRole {

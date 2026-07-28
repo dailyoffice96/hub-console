@@ -1,4 +1,4 @@
-﻿package com.smconsole.common.exception;
+package com.smconsole.common.exception;
 
 public class GlobalExceptionHandler {
 

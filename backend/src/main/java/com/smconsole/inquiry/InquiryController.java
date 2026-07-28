@@ -1,4 +1,4 @@
-﻿package com.smconsole.inquiry;
+package com.smconsole.inquiry;
 
 public class InquiryController {
 

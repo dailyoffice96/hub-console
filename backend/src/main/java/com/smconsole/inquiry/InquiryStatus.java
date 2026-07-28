@@ -1,6 +1,6 @@
-﻿package com.smconsole.inquiry;
+package com.smconsole.inquiry;
 
-public class InquiryStatus {
-
+public enum InquiryStatus {
+    WAITING, IN_PROGRESS, DONE
 }
 

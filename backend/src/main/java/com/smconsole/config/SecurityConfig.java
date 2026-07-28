@@ -1,4 +1,4 @@
-﻿package com.smconsole.config;
+package com.smconsole.config;
 
 
 import com.smconsole.admin.LoginFailureHandler;
@@ -36,6 +36,7 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http
+                    .csrf(csrf -> csrf.disable())
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/login").permitAll()
                             .anyRequest().authenticated()
@@ -52,6 +53,7 @@ public class SecurityConfig {
                     )
                     .formLogin(form -> form
                             .loginProcessingUrl("/login")
+                            .usernameParameter("loginId")
                             .successHandler(loginSuccessHandler)
                             .failureHandler(loginFailureHandler)
                             .permitAll()

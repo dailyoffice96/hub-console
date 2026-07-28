@@ -1,4 +1,4 @@
-﻿package com.smconsole.incident;
+package com.smconsole.incident;
 
 public class IncidentSeverity {
 

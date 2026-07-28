@@ -1,4 +1,4 @@
-﻿package com.smconsole.admin;
+package com.smconsole.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;

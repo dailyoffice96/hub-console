@@ -1,4 +1,4 @@
-﻿package com.smconsole.user;
+package com.smconsole.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;

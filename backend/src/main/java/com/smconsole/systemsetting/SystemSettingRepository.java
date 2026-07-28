@@ -1,4 +1,4 @@
-﻿package com.smconsole.systemsetting;
+package com.smconsole.systemsetting;
 
 public class SystemSettingRepository {
 

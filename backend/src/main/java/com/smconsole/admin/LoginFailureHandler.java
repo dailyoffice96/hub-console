@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
 //실패 이유도 다양하고(비번 틀림, 계정 잠김, 계정 없음 등),
 // 처리 방식도 서비스마다 워낙 다양해서 공통 기본 동작을 만들기 애매해서 인터페이스로만 규칙만 제공
 //"이미 실패로 판정 난 상황에서, 그 사람 계정의 실패횟수를 올려주는 일
+@Component
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler{
     private final AdminRepository adminRepository;

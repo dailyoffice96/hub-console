@@ -1,4 +1,4 @@
-﻿package com.smconsole.admin;
+package com.smconsole.admin;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

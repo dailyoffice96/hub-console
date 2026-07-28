@@ -16,7 +16,9 @@ import java.time.LocalDate;
 public class UserService {
     private final UserRepository userRepository;
 
-    public Page<UserResponse> getsearch(String name, String phone, UserStatus status, Pageable pageable){
+    public Page<UserResponse> getSearch(
+            String name, String phone,
+            UserStatus status, Pageable pageable){
         Page<User> users;
 
         if (name != null && phone != null) {
@@ -32,7 +34,7 @@ public class UserService {
         return users.map(this::toResponse);
     }
 
-    public UserResponse getuser(Long id) {
+    public UserResponse getUser(Long id) {
         User user = userRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         return toResponse(user);

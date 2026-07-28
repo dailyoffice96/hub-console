@@ -15,18 +15,18 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Page<UserResponse>> getsearch(
+    public ResponseEntity<Page<UserResponse>> getSearch(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) UserStatus status,
             Pageable pageable
-    ){ Page<UserResponse> users = userService.getsearch(name, phone, status, pageable);
+    ){ Page<UserResponse> users = userService.getSearch(name, phone, status, pageable);
        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getuser(@PathVariable Long LoginId) {
-        UserResponse user = userService.getuser(LoginId);
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long LoginId) {
+        UserResponse user = userService.getUser(LoginId);
         return ResponseEntity.ok(user);
     }
 

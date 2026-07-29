@@ -12,6 +12,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
+import java.util.List;
 
 //@Configuration --> Spring에게 "이 클래스 안에는 @Bean이라고 표시된 메서드들이 있을 거고, 그것들을 미리 실행해서 부품(객체)들을 만들어놔라
 @Configuration
@@ -41,14 +47,11 @@ public class SecurityConfig {
                             .requestMatchers("/login").permitAll()
                             .anyRequest().authenticated()
 
-
 //                            .requestMatchers("/admins/**").hasRole("SUPER_ADMIN")
 //                            .requestMatchers("/system-settings/**").hasRole("SUPER_ADMIN")
 //                            .requestMatchers("/inquiries/*/assign", "/incidents/*/assign").hasAnyRole("SUPER_ADMIN", "ADMIN")
 //                            .requestMatchers("/admins/*/force-logout", "/admins/*/lock").hasAnyRole("SUPER_ADMIN", "ADMIN")
 //                            .anyRequest().authenticated()   // 조회/수정/마스킹은 STAFF도 되니 그냥 로그인만 요구
-
-
 
                     )
                     .formLogin(form -> form
@@ -60,6 +63,21 @@ public class SecurityConfig {
                     );
             return http.build();
         }
+
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource(){
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:9000"));
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            config.setAllowedHeaders(List.of("*"));
+            config.setAllowCredentials(true);
+
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", config);
+            return source;
+        }
+
 
 }
 

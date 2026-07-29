@@ -7,6 +7,7 @@ public record InquiryDetailResponse(
         Long id,
         String userName,
         String assigneeName,
+        Long assigneeId,
         InquiryType type,
         String title,
         String content,

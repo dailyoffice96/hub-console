@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MyInfoController {
 
-    private final MyInfoResponse myInfoResponse;
     private final AdminRepository adminRepository;
 
     // Authentication 객체 안에는, "지금 로그인한 사람에 대한 정보"가 여러 개 들어있는데,

@@ -3,7 +3,7 @@
 
 function Sidebar() {
   return (
-    <div className="vh-100 p-3" style={{ maxWidth: '220px' }}>
+    <div className="vh-100 p-3 w-100" style={{ maxWidth: '25rem', backgroundColor: '#042C53'}}>
       <h5 className="mb-4">SM Console</h5>
       <ul className="nav flex-column">
         <li className="nav-item">

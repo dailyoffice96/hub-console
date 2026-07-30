@@ -1,6 +1,7 @@
 import {useLocation, useNavigate} from "react-router-dom"
 import { logout } from '../api/authApi';
-import {useState} from "react"
+import {useState, useEffect} from "react"
+import axiosInstance from '../api/axiosInstance';
 
 function Header() {
     const location = useLocation();

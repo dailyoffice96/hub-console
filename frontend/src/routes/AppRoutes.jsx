@@ -1,18 +1,22 @@
-﻿import { Routes, Route } from 'react-router-dom';
+﻿import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
-import MemberListPage from '../pages/MemberListPage';
+import UserListPage from '../pages/UserListPage';
+import AdminListPage from '../pages/AdminListPage';
 import InquiryListPage from '../pages/InquiryListPage';
 import IncidentListPage from '../pages/IncidentListPage';
-import PrivateRoute from './PrivateRoute';
+import Layout from '../components/Layout';
+
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route element={<PrivateRoute />}>
-        <Route path="/members" element={<MemberListPage />} />
+      <Route element={<Layout />}>
+        <Route path="/users" element={<UserListPage />} />
+        <Route path="/admins" element={<AdminListPage />} />
         <Route path="/inquiries" element={<InquiryListPage />} />
         <Route path="/incidents" element={<IncidentListPage />} />
+        <Route path="/auditlog" element={<AuditLogPage />} />
       </Route>
     </Routes>
   );

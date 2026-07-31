@@ -18,9 +18,10 @@ public class UserController {
     public ResponseEntity<Page<UserResponse>> getSearch(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String loginId,
             @RequestParam(required = false) UserStatus status,
             Pageable pageable
-    ){ Page<UserResponse> users = userService.getSearch(name, phone, status, pageable);
+    ){ Page<UserResponse> users = userService.getSearch(name, phone, loginId, status, pageable);
        return ResponseEntity.ok(users);
     }
 
@@ -30,15 +31,20 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<UserStatsResponse> getStats(){
+        return ResponseEntity.ok(userService.getStats());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UserResponse dto){
         UserResponse user = userService.update(id, dto);
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("/{id}/withdraw")
-    public ResponseEntity<UserResponse> withdraw(@PathVariable Long id){
-        UserResponse user = userService.withdraw(id);
+    @PutMapping("/{id}/dormant")
+    public ResponseEntity<UserResponse> dormant(@PathVariable Long id){
+        UserResponse user = userService.dormant(id);
         return ResponseEntity.ok(user);
     }
 

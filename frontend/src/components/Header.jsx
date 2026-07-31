@@ -31,7 +31,7 @@ function Header() {
 
     return(
     <div className="p-3 d-flex justify-content-between align-items-center">
-       <h4>{title}</h4>
+       <h4 className="mb-0" style={{ fontFamily: 'Paperlogy' }}>{title}</h4>
 
        <div className="d-flex align-items-center">
        <span className="me-3">{myInfo?.name} · {myInfo?.role}</span>

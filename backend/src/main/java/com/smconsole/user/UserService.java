@@ -17,15 +17,17 @@ public class UserService {
     private final UserRepository userRepository;
 
     public Page<UserResponse> getSearch(
-            String name, String phone,
+            String name, String phone, String loginId,
             UserStatus status, Pageable pageable){
         Page<User> users;
 
-        if (name != null && phone != null) {
+        if (loginId != null && !loginId.isEmpty()) {
+            users = userRepository.findByLoginIdContaining(loginId, pageable);
+        }else if (name != null && phone != null && !name.isEmpty() && !phone.isEmpty()) {
             users = userRepository.findByNameAndPhone(name, phone, pageable);
-        } else if (name != null) {
+        } else if (name != null && !name.isEmpty()) {
             users = userRepository.findByName(name, pageable);
-        } else if (status != null) {
+        } else if (status != null && !status.toString().isEmpty()) {
             users = userRepository.findByStatus(status, pageable);
         } else {
             users = userRepository.findAll(pageable);
@@ -38,6 +40,13 @@ public class UserService {
         User user = userRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
         return toResponse(user);
+    }
+
+    public UserStatsResponse  getStats(){
+        long active = userRepository.countByStatus(UserStatus.ACTIVE);
+        long dormant = userRepository.countByStatus(UserStatus.DORMANT);
+        long withdrawn = userRepository.countByStatus(UserStatus.WITHDRAWN);
+        return  new  UserStatsResponse(active, dormant, withdrawn);
     }
 
     public UserResponse update(Long id, UserResponse dto){
@@ -53,12 +62,12 @@ public class UserService {
         return toResponse(user);
     }
 
-    public UserResponse withdraw(Long id){
+    public UserResponse dormant(Long id){
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        user.setStatus(UserStatus.WITHDRAWN);
-        user.setWithdrawnAt(LocalDate.now());
+        user.setStatus(UserStatus.DORMANT);
+        user.setDormantAt(LocalDate.now());
 
         userRepository.save(user);
         return toResponse(user);
@@ -74,7 +83,7 @@ public class UserService {
                 maskEmail(user.getEmail()),
                 user.getStatus(),
                 user.getCreatedAt(),
-                user.getWithdrawnAt(),
+                user.getDormantAt(),
                 user.getUpdatedAt()
         );
     }

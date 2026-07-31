@@ -35,8 +35,8 @@ public class User {
     @Column(name="created_at")
     private LocalDate createdAt = LocalDate.now();
 
-    @Column(name="with_drawn_at")
-    private LocalDate withdrawnAt;
+    @Column(name="dormant_at")
+    private LocalDate dormantAt;
 
     @Column(name="up_date_at")
     private LocalDate updatedAt;

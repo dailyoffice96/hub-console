@@ -6,7 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.smconsole.auditlog.AuditAction;
+import com.smconsole.auditlog.AuditLogService;
 import org.springframework.transaction.annotation.Transactional;
+import com.smconsole.auditlog.AuditTargetType;
 
 
 import java.util.List;
@@ -19,6 +23,7 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final InquiryStatusHistoryRepository inquiryStatusHistoryRepository;
     private final AdminRepository adminRepository;
+    private final AuditLogService auditLogService;
 
 
     // 1. 목록조회 (검색+필터+페이징)
@@ -27,14 +32,14 @@ public class InquiryService {
             InquiryType type, Pageable pageable) {
         Page<Inquiry> inquiries;
 
-        if (assigneeName != null) {
+        if (assigneeName != null && !assigneeName.isEmpty()) {
             inquiries = inquiryRepository.findByAssigneeName(assigneeName, pageable);
         } else if (status != null) {
             inquiries = inquiryRepository.findByStatus(status, pageable);
         } else if (type != null) {
             inquiries = inquiryRepository.findByType(type, pageable);
         } else {
-            inquiries = inquiryRepository.findAll(pageable);
+            inquiries = inquiryRepository.findAllFetch(pageable);
         }
 
         return inquiries.map(this::toResponse);
@@ -64,13 +69,20 @@ public class InquiryService {
         );
     }
 
+    public InquiryStatsResponse getStats(){
+        long waiting = inquiryRepository.countByStatus(InquiryStatus.WAITING);
+        long inProgress = inquiryRepository.countByStatus(InquiryStatus.IN_PROGRESS);
+        long done = inquiryRepository.countByStatus(InquiryStatus.DONE);
+        return new InquiryStatsResponse(waiting, inProgress, done);
+    }
+
     // 3. 댓글 작성
     public InquiryCommentResponse createComment(Long inquiryId,String content) {
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
 
         // 임시로 첫 번째 관리자를 작성자로 사용 (나중에 로그인한 사람으로 교체 예정)
-        Admin admin = adminRepository.findAll().get(0);
+        Admin admin = getCurrentAdmin();
 
         InquiryComment comment = new InquiryComment();
         comment.setInquiry(inquiry);
@@ -95,7 +107,7 @@ public class InquiryService {
         }
         inquiryRepository.save(inquiry);
 
-        Admin admin = adminRepository.findAll().get(0);
+        Admin admin = getCurrentAdmin();
 
         InquiryStatusHistory history = new InquiryStatusHistory();
         history.setInquiry(inquiry);
@@ -103,6 +115,9 @@ public class InquiryService {
         history.setAfterStatus(status);
         history.setChangedBy(admin);
         inquiryStatusHistoryRepository.save(history);
+
+        auditLogService.log(admin, AuditAction.UPDATE, AuditTargetType.INQUIRY, inquiry.getId(),
+                "상태변경: " + oldState + " → " + status);
 
         return toResponse(inquiry);
     }
@@ -120,6 +135,12 @@ public class InquiryService {
 
         return toResponse(inquiry);
 
+    }
+
+    private Admin getCurrentAdmin() {
+        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return adminRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalStateException("로그인 정보를 찾을 수 없습니다."));
     }
 
     private  InquiryResponse toResponse(Inquiry inquiry){

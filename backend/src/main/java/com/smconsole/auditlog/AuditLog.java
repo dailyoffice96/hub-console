@@ -1,6 +1,45 @@
 package com.smconsole.auditlog;
 
+import com.smconsole.admin.Admin;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "audit_logs")
 public class AuditLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "audit_log_id")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action")
+    private AuditAction action;
+
+    @Column(name = "target_id")
+    private Long targetId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_type")
+    private AuditTargetType targetType;
+
+    @Column(columnDefinition = "TEXT")
+    private String detail;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }
 

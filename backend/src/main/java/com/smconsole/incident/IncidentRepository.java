@@ -1,6 +1,19 @@
 package com.smconsole.incident;
 
-public class IncidentRepository {
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+public interface IncidentRepository extends JpaRepository<Incident, Long> {
+
+    @Query("SELECT i FROM Incident i LEFT JOIN FETCH i.reporter")
+    Page<Incident> findAllFetch(Pageable pageable);
+
+    Page<Incident> findByReporter_NameContaining(String reporterName, Pageable pageable);
+    Page<Incident> findByStatus(IncidentStatus status, Pageable pageable);
+    Page<Incident> findBySeverity(IncidentSeverity severity, Pageable pageable);
+
+    long countByStatus(IncidentStatus status);
 }
 

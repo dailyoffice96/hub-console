@@ -14,7 +14,7 @@ export const updateUser = (id, data) =>
 
 //회원의 휴면계정으로 전환
 export const dormantUser = (id) =>
-  axiosInstance.patch(`/api/users/${id}/dormant`);
+  axiosInstance.put(`/api/users/${id}/dormant`);
 
 //회원 상태 통계
 export const getUserStats = () =>

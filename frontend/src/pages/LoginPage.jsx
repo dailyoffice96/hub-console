@@ -17,11 +17,18 @@ function LoginPage() {
             await login(loginId, password)
             navigate("/users");
         }
-        catch(error){
-            if(error.response?.status === 401){setError("로그인 실패");}
-            else{
-                setError("로그인 중 오류가 발생했습니다.");
+        catch (error) {
+            if (error.response?.status === 401) {
+                const failCount = error.response.data?.failCount;
+                if (failCount >= 5) {
+                    setError("로그인 5회 실패로 계정이 잠겼습니다. 관리자에게 문의하세요.");
+                } else if (failCount) {
+                    setError(`아이디 또는 비밀번호가 틀렸습니다.
+                    (${failCount}회 실패, 5회 실패 시 계정이 잠깁니다)`);
+                } else {
+                    setError("아이디 또는 비밀번호가 틀렸습니다.");
                 }
+            }
         }
     }
 
@@ -58,8 +65,8 @@ function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}/>
 
                 {/* 로그인 실패 시 에러 메시지 표시 */}
-                {error && <p className="text-danger">{error}</p>}
-
+                {error && <p className="text-danger" style={{ whiteSpace: 'pre-line' }}>
+                {error}</p>}
                 <button type="submit" className="btn btn-primary w-100 mt-2">로그인</button>
             </form>
             </div>

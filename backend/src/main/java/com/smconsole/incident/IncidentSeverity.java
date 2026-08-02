@@ -1,6 +1,6 @@
 package com.smconsole.incident;
 
-public class IncidentSeverity {
-
+public enum IncidentSeverity {
+    LOW, MEDIUM, HIGH, CRITICAL
 }
 

@@ -1,4 +1,4 @@
-﻿import axiosInstance from './axiosInstance';
+import axiosInstance from './axiosInstance';
 
 export const login = (loginId, password) =>
   //실제로 보낼 데이터 (아이디/비번을 폼 형식으로 변환)

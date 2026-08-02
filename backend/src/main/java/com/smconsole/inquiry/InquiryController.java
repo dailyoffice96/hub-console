@@ -30,21 +30,29 @@ public class InquiryController {
         return ResponseEntity.ok(inquiry);
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<InquiryStatsResponse> getStats() {
+        return ResponseEntity.ok(inquiryService.getStats());
+    }
+
     @PostMapping("/{id}/comments")
-    public ResponseEntity<InquiryCommentResponse> createComment(@PathVariable Long id, @RequestBody String content){
-        InquiryCommentResponse inquiry = inquiryService.createComment(id, content);
-        return ResponseEntity.ok(inquiry);
+    public ResponseEntity<InquiryCommentResponse> createComment(
+            @PathVariable Long id, @RequestBody CommentRequest request) {
+        InquiryCommentResponse comment = inquiryService.createComment(id, request.content());
+        return ResponseEntity.ok(comment);
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<InquiryResponse> updateStatus(@PathVariable Long id, @RequestBody InquiryStatus status){
-        InquiryResponse inquiry = inquiryService.updateStatus(id, status);
+    public ResponseEntity<InquiryResponse> updateStatus(
+            @PathVariable Long id, @RequestBody StatusRequest request) {
+        InquiryResponse inquiry = inquiryService.updateStatus(id, request.status());
         return ResponseEntity.ok(inquiry);
     }
 
     @PutMapping("/{id}/assign")
-    public ResponseEntity<InquiryResponse> updatesAssign(@PathVariable Long id, @RequestBody Long adminId){
-        InquiryResponse inquiry = inquiryService.updatesAssign(id, adminId);
+    public ResponseEntity<InquiryResponse> assign(
+            @PathVariable Long id, @RequestBody AssignRequest request) {
+        InquiryResponse inquiry = inquiryService.updatesAssign(id, request.adminId());
         return ResponseEntity.ok(inquiry);
     }
 }

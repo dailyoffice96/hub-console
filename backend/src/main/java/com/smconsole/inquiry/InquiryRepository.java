@@ -9,11 +9,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 
-    @Query("SELECT i FROM Inquiry i JOIN FETCH i.user JOIN FETCH i.assignee")
+    @Query("SELECT i FROM Inquiry i LEFT JOIN FETCH i.user LEFT JOIN FETCH i.assignee")
     Page<Inquiry> findAllFetch(Pageable pageable);
 
     Page<Inquiry> findByStatus(InquiryStatus inquiryStatus, Pageable pageable);
     Page<Inquiry> findByType(InquiryType type, Pageable pageable);
     Page<Inquiry> findByAssigneeName(String assigneeName, Pageable pageable);
+
+    long countByStatus(InquiryStatus status);
+
 }
 

@@ -19,7 +19,7 @@ function Sidebar() {
             <Link className="nav-link text-white" to="/incidents">
             장애목록</Link></li>
         <li className="nav-item">
-            <Link className="nav-link text-white" to="/audit-logs">
+            <Link className="nav-link text-white" to="/auditLog">
             Audit Log</Link></li>
       </ul>
     </div>

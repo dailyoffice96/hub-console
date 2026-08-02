@@ -31,6 +31,14 @@ function UserListPage() {
      getUserStats().then(res => setStates(res.data));
     }, []);
 
+    useEffect(() => {
+          fetchStats();
+      }, []);
+
+    const fetchStats = () => {
+        getUserStats().then(res => setStates(res.data));
+    };
+
     const handleSearch = async() => {
         setPage(0);
         const res = await getUser({name, loginId, status, page: 0, size: 10});
@@ -98,22 +106,18 @@ function UserListPage() {
         <UserDetailModal
             user={selectedUser}
             onClose={() => setSelectedUser(null)}
-            onUpdated={() => {getUser({name, status, page, size:10}).then(res => setUsers(res.data.content));
+            onUpdated={() => {getUser({name, status, page, size:10})
+            .then(res => setUsers(res.data.content));
+            fetchStats();
             }}
         />
       )}
 
-       <button className="btn btn-outline-secondary me-2"
-               disabled={page === 0}
-               onClick={() => setPage(page - 1)}>
-           이전
-       </button>
-
-      <button className="btn btn-outline-secondary"
-              disabled={page >= totalPages - 1}
-              onClick={() => setPage(page + 1)}>
-          다음
-      </button>
+            <div className="d-flex justify-content-center mt-3">
+                <button className="btn btn-outline-secondary me-2" disabled={page === 0} onClick={() => setPage(page - 1)}>이전</button>
+                <span className="align-self-center mx-2">{page + 1} / {totalPages} 페이지</span>
+                <button className="btn btn-outline-secondary" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>다음</button>
+            </div>
     </div>
   );
 }

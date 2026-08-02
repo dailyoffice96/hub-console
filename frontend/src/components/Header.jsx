@@ -13,14 +13,14 @@ function Header() {
         '/admins': '관리자관리',
         '/inquiries': '문의관리',
         '/incidents': '장애관리',
-        '/audit-logs': '감사로그',
+        '/auditLog': '감사로그',
     };
 
     const title = pageTitles[location.pathname] || 'SM Console';
 
     const handleLogout = async() => {
      await logout();
-     navigate('/login');
+     navigate('/');
     }
 
     //화면이 맨 처음 만들어질 때 딱 한 번, 서버의 /api/me라는 주소로 조회 요청을 보내고,

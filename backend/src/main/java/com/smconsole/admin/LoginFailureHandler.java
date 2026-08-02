@@ -9,6 +9,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //extends는 클래스용(이미 "완성된 동작"이 있는 걸 물려받을 때)
 //그냥 특정 페이지로 이동시키면 끝
@@ -25,26 +27,28 @@ public class LoginFailureHandler implements AuthenticationFailureHandler{
     private final AdminRepository adminRepository;
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        // 1단계 사용자가 폼에 입력했던 아이디값을 문자열로 담아두기
-        // "이 사람이 폼에 뭐라고 입력했었는지" 원본 데이터(request)에서 직접 꺼내와야 함
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException {
         String loginId = request.getParameter("loginId");
 
-        //2단계 loginId를 갖고 db에서 그 사람을 찾아야 함
-        adminRepository.findByLoginId(loginId).ifPresent(admin ->{
-            int failCount = admin.getLoginFailCount();
-            failCount++;
-            admin.setLoginFailCount(failCount);
+        AtomicInteger failCount = new AtomicInteger(0);
+        boolean locked = false;
 
-            if(failCount >= 5){
+        Optional<Admin> adminOpt = adminRepository.findByLoginId(loginId);
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+            admin.setLoginFailCount(admin.getLoginFailCount() + 1);
+            failCount.set(admin.getLoginFailCount());
+
+            if (admin.getLoginFailCount() >= 5) {
                 admin.setLocked(true);
             }
-
             adminRepository.save(admin);
-        });
+        }
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"failCount\":" + failCount.get() + "}");
     }
 }
 

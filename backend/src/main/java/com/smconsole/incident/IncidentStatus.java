@@ -1,6 +1,6 @@
 package com.smconsole.incident;
 
-public class IncidentStatus {
-
+public enum IncidentStatus {
+    RECEIVED, IN_PROGRESS, DONE
 }
 

@@ -19,3 +19,17 @@ export const dormantUser = (id) =>
 //회원 상태 통계
 export const getUserStats = () =>
    axiosInstance.get('/api/users/stats')
+
+export const downloadUser = () => {
+    return axiosInstance.get('/api/users/excel', {responseType: 'blob'});
+}
+
+export const uploadUser = (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return axiosInstance.post('/api/users/excel/upload', formData,
+    { headers: { 'Content-Type': 'multipart/form-data' }});
+}
+
+

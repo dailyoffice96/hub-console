@@ -5,8 +5,7 @@ import AdminListPage from '../pages/AdminListPage';
 import InquiryListPage from '../pages/InquiryListPage';
 import IncidentListPage from '../pages/IncidentListPage';
 import AuditLogPage from '../pages/AuditLogPage';
-import Layout from '../components/Layout';
-
+import Layout from '../components/Layout';  // 실제 경로 확인 필요
 
 function AppRoutes() {
   return (

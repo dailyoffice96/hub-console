@@ -1,5 +1,5 @@
-﻿import { useState, useEffect } from 'react';
-import {getUser, getUserStats} from "../api/usersApi"
+﻿import {useState, useEffect, useRef} from 'react';
+import {getUser, getUserStats, downloadUser, uploadUser} from "../api/usersApi"
 import StatCard from '../components/StatCard';
 import UserDetailModal from '../components/UserDetailModal';
 
@@ -13,6 +13,7 @@ function UserListPage() {
     const [states, setStates] = useState({active: 0, dormant: 0, withdrawn: 0 });
     const [totalPages, setTotalPages] = useState(0);
     const [selectedUser, setSelectedUser] = useState(null);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
     getUser({name, status, page, size: 10})
@@ -33,7 +34,7 @@ function UserListPage() {
 
     useEffect(() => {
           fetchStats();
-      }, []);
+    }, []);
 
     const fetchStats = () => {
         getUserStats().then(res => setStates(res.data));
@@ -43,6 +44,35 @@ function UserListPage() {
         setPage(0);
         const res = await getUser({name, loginId, status, page: 0, size: 10});
         setUsers(res.data.content);
+    }
+
+    const handleDownload = () => {
+        downloadUser().then(res => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', '회원목록.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        });
+    }
+
+    const handleUpload = (e) => {
+     const file = e.target.files[0];
+     if (!file) return;
+
+    uploadUser(file).then(() => {
+     alert("업로드가 완료되었습니다.");
+         getUser({name, status, page, size: 10})
+         .then(res => {
+             setUsers(res.data.content || []);
+             setTotalPages(res.data.totalPages);
+         }); // 목록 새로고침
+         fetchStats(); // 통계 새로고침
+     }).catch(err => {
+        alert(err.response?.data?.message || "업로드 중 오류가 발생하였습니다.")
+     });
     }
 
   return (
@@ -70,7 +100,9 @@ function UserListPage() {
             <option value="ACTIVE">활성</option>
             <option value="DORMANT">휴면</option>
             <option value="WITHDRAWN">탈퇴</option> </select>
+
           <button className="btn btn-primary" onClick={handleSearch}>검색</button>
+
       </div>
 
       <table className="table table-hover">
@@ -113,11 +145,25 @@ function UserListPage() {
         />
       )}
 
-            <div className="d-flex justify-content-center mt-3">
+        <div className="d-flex justify-content-between align-items-center mt-3">
+            <div></div>
+            <div>
                 <button className="btn btn-outline-secondary me-2" disabled={page === 0} onClick={() => setPage(page - 1)}>이전</button>
                 <span className="align-self-center mx-2">{page + 1} / {totalPages} 페이지</span>
                 <button className="btn btn-outline-secondary" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>다음</button>
             </div>
+
+            <div>
+            <button className="btn btn-success me-2" onClick={handleDownload}>엑셀 다운</button>
+                  <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept=".xlsx"
+                      style={{ display : 'none'}}
+                      onChange={handleUpload} />
+            <button className="btn btn-danger" onClick={() => fileInputRef.current.click()}>엑셀 업로드</button>
+            </div>
+        </div>
     </div>
   );
 }

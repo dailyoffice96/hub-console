@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAuditLogs } from '../api/auditLogApi';
+import { getAuditLogs, downloadAuditLog} from '../api/auditLogApi';
 import { formatDateTime } from '../utils/format';
 
 const actionLabels = { CREATE: '등록', UPDATE: '수정', DELETE: '삭제' };
@@ -33,6 +33,19 @@ function AuditLogPage() {
         setPage(0);
         fetchLogs();
       };
+
+    const handleDownload = () => {
+      downloadAuditLog().then(res => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', '감사로그_목록.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      });
+    };
+
 
   return (
     <div>
@@ -83,10 +96,17 @@ function AuditLogPage() {
        ))}
      </tbody>
     </table>
-     <div className="d-flex justify-content-center mt-3">
-         <button className="btn btn-outline-secondary me-2" disabled={page === 0} onClick={() => setPage(page - 1)}>이전</button>
-         <span className="align-self-center mx-2">{page + 1} / {totalPages} 페이지</span>
-         <button className="btn btn-outline-secondary" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>다음</button>
+     <div className="d-flex justify-content-between align-items-center mt-3">
+         <div></div>
+         <div>
+             <button className="btn btn-outline-secondary me-2" disabled={page === 0} onClick={() => setPage(page - 1)}>이전</button>
+             <span className="align-self-center mx-2">{page + 1} / {totalPages} 페이지</span>
+             <button className="btn btn-outline-secondary" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>다음</button>
+         </div>
+
+        <div>
+             <button className="btn btn-success" onClick={handleDownload}>엑셀 다운</button>
+         </div>
      </div>
     </div>
   );

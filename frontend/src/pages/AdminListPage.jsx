@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import { getAdmin, getAdminStats, unlockAdmin, deleteAdmin } from "../api/adminApi";
 import axiosInstance from '../api/axiosInstance';
+import SystemModal from '../components/SystemModal';
 
 
 function AdminListPage() {
@@ -12,6 +13,8 @@ function AdminListPage() {
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [stats, setStats] = useState({ totalCount: 0, lockedCount: 0, superAdminCount: 0, adminCount: 0, staffCount: 0 });
+    const [showSystemModal, setShowSystemModal] = useState(false);
+
 
     const fetchAdmins = () => {
         getAdmin({ name, role, page, size: 10 })
@@ -83,6 +86,11 @@ function AdminListPage() {
                     <option value="STAFF">직원</option>
                 </select>
                 <button className="btn btn-primary" onClick={handleSearch}>검색</button>
+                    {myRole === 'SUPER_ADMIN' && (
+                        <button className="btn btn-warning ms-auto" onClick={() => setShowSystemModal(true)}>
+                            점검 설정
+                        </button>
+                    )}
             </div>
 
             <table className="table table-hover">
@@ -121,6 +129,10 @@ function AdminListPage() {
                     ))}
                 </tbody>
             </table>
+
+            {showSystemModal && (
+                <SystemModal onClose={() => setShowSystemModal(false)} />
+            )}
 
             <div className="d-flex justify-content-center mt-3">
                 <button className="btn btn-outline-secondary me-2" disabled={page === 0} onClick={() => setPage(page - 1)}>이전</button>

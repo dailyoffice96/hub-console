@@ -1,5 +1,7 @@
 package com.smconsole.admin;
 
+import com.smconsole.systemsetting.SystemSetting;
+import com.smconsole.systemsetting.SystemSettingRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 
 //extends는 클래스용(이미 "완성된 동작"이 있는 걸 물려받을 때)
 //그냥 특정 페이지로 이동시키면 끝
@@ -17,6 +22,17 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final AdminRepository adminRepository;
+    private final SystemSettingRepository systemSettingRepository;
+
+    private boolean isUnderMaintenance() {
+        List<SystemSetting> all = systemSettingRepository.findAll();
+        if (all.isEmpty()) {
+            return false;
+        }
+        SystemSetting setting = all.get(0);
+        LocalDate today = LocalDate.now();
+        return !today.isBefore(setting.getStartAt()) && !today.isAfter(setting.getEndAt());
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -24,13 +40,21 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         // 이미 로그인이 성공했기 때문에 Spring Security는 "검증된 사용자 정보"**를 담은 Authentication이라는 객체를 우리에게 넘겨줌
         String loginId = authentication.getName();
 
-        // 2단계 실패 횟수를 0으로 리셋함
-        adminRepository.findByLoginId(loginId).ifPresent(admin -> {
+        Admin admin = adminRepository.findByLoginId(loginId).orElse(null);
+
+        if (admin != null && isUnderMaintenance() && admin.getRole() != AdminRole.SUPER_ADMIN) {
+            request.getSession().invalidate();
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"현재 시스템 점검 중입니다. 대표 계정만 로그인 가능합니다.\"}");
+            return;
+        }
+
+        // 이미 조회해둔 admin을 그대로 재사용
+        if (admin != null) {
             admin.setLoginFailCount(0);
-
             adminRepository.save(admin);
-
-        });
+        }
         response.setStatus(HttpServletResponse.SC_OK);
 
     }

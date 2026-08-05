@@ -1,17 +1,19 @@
 import Header from "./Header"
 import Sidebar from "./Sidebar"
-import {Outlet} from "react-router-dom"
-
-
-/* flex-grow-0"남은 공간이 있어도, 늘어나지 마라" (원래 크기만큼만)
-flex-grow-1"남은 공간을 최대한 늘려서 다 차지해라"
-d-flex 써야 함 flex-grow-1 자체가 작동을 안 함 */
+import { Outlet } from "react-router-dom"
+import bgImage from "../images/main-bg.png";
 
 function Layout() {
-  return(
+  return (
    <div className="d-flex">
        <Sidebar />
-       <div className="flex-grow-1">
+       <div
+         className="flex-grow-1"
+         style={{
+             backgroundColor: '#F4F6FA',   // 헤더+본문 공통 배경색
+             minHeight: '100vh'
+         }}
+       >
            <Header />
            <div className="p-4">
                <Outlet />
@@ -22,3 +24,5 @@ function Layout() {
 }
 
 export default Layout;
+
+

@@ -2,18 +2,23 @@
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authapi";
 import { getSystemSetting } from "../api/systemSettingApi";
-import { Container, Carousel } from "react-bootstrap";
-import image1 from "../images/11.jpg";
-import image2 from "../images/22.jpg";
-import image3 from "../images/33.jpg";
+import image1 from "../images/11.png";
+import image2 from "../images/22.png";
+import image3 from "../images/33.png";
+import "../css/Login.css";
 
+const brandSlides = [
+    { image: image1, title: "회원 관리", desc: "회원 정보를 안전하게 관리합니다" },
+    { image: image2, title: "문의 대응", desc: "신속한 CS 대응 시스템을 제공합니다" },
+    { image: image3, title: "장애 관리", desc: "장애를 빠르게 추적하고 해결합니다" },
+];
 function LoginPage() {
     const [loginId, setLoginId] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [systemSetting, setSystemSetting] = useState(null);
     const [showMaintenancePopup, setShowMaintenancePopup] = useState(true);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [imgIndex, setImgIndex] = useState(0);
 
     const navigate = useNavigate();
 
@@ -23,22 +28,25 @@ function LoginPage() {
         });
     }, []);
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setImgIndex(prev => (prev + 1) % brandSlides.length);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, []);
+
     const isUnderMaintenance = () => {
         if (!systemSetting) return false;
-
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
         const today = `${year}-${month}-${day}`;
-
         return today >= systemSetting.startAt && today <= systemSetting.endAt;
     };
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        console.log('로그인 시도중입니다.');
-
         try {
             await login(loginId, password);
             navigate("/users");
@@ -60,151 +68,69 @@ function LoginPage() {
     };
 
     return (
-        <div style={{ position: 'relative', minHeight: '100vh' }}>
-            {/* 배경: 캐러셀이 화면 전체를 채움 */}
-            <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-                <Carousel indicators={true} controls={true} interval={4000}>
-                    <Carousel.Item>
-                        <img
-                            className="d-block w-100"
-                            src={image1}
-                            alt="1번째 이미지"
-                            style={{ height: '100vh', objectFit: 'cover', objectPosition: 'center top' }}
-                        />
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <img
-                            className="d-block w-100"
-                            src={image2}
-                            alt="2번째 이미지"
-                            style={{ height: '100vh', objectFit: 'cover', objectPosition: 'center top' }}
-                        />
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <img
-                            className="d-block w-100"
-                            src={image3}
-                            alt="3번째 이미지"
-                            style={{ height: '100vh', objectFit: 'cover', objectPosition: 'center top' }}
-                        />
-                    </Carousel.Item>
-                </Carousel>
+        <div className="fullpage-bg">
+            <div className="brand-overlay">
+                <div className="logo">⬡ SM <span>Console</span></div>
+                 <h2 className="brand-title">{brandSlides[imgIndex].title}</h2>
+                <hr/>
+                 <p className="mb-3"  style={{ fontSize: '24px' }}>{brandSlides[imgIndex].desc}</p>
+                <p className="mt-3">
+                    SM Console 운영팀
+                    <br/>
+                    support@smconsole.io
+                </p>
             </div>
 
-            {/* 파스텔 그라데이션 오버레이 */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, rgba(173,216,255,0.3) 0%, rgba(255,240,230,0.15) 100%)',
-                zIndex: 1,
-            }} />
+            {/* 중앙 이미지 슬라이더 */}
+            <div className="brand-slider">
+                <img src={brandSlides[imgIndex].image} alt="" />
+            </div>
 
-            {/* 로그인 폼: 배경 위에 떠 있음, 오른쪽 끝 정렬 */}
-            <div style={{
-                position: 'relative',
-                zIndex: 2,
-                display: 'flex',
-                alignItems: 'stretch',
-                justifyContent: 'flex-end',
-                height: '100vh'
-            }}>
+            <div className="login-card-wrapper">
+                <div className="login-box">
+                    <h2 className="fw-bold">⬡ SM <span>Console</span></h2>
+                    <p className="text-secondary mb-4">내부 직원 및 관리자 전용 관리 콘솔</p>
 
-                {/* 화살표 버튼 - 폼 너비와 연동되어 같이 움직임 */}
-                <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        right: isExpanded ? '82%' : '33rem',
-                        transform: 'translateY(-50%)',
-                        width: '32px',
-                        height: '56px',
-                        borderTopLeftRadius: '28px',
-                        borderBottomLeftRadius: '28px',
-                        borderTopRightRadius: '4px',
-                        borderBottomRightRadius: '4px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: 'none',
-                        color: '#1B2A4A',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '16px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                        cursor: 'pointer',
-                        zIndex: 3,
-                        transition: 'right 0.3s ease',
-                    }}
-                >
-                    {isExpanded ? '›' : '‹'}
-                </button>
-
-                {/* 로그인 폼 */}
-                <div
-                    className="shadow rounded-4 p-4 d-flex flex-column justify-content-center"
-                    style={{
-                        width: '100%',
-                        maxWidth: isExpanded ? '82%' : '33rem',
-                        transition: 'max-width 0.3s ease',
-                        padding: '0',
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)'
-                    }}>
-                    <h2>Login Page</h2>
-                    <p className="text-muted">내부 직원 및 관리자 전용 관리 콘솔</p>
                     <form onSubmit={handleLogin}>
-                        <label className="form-label">아이디</label>
-                        <input
-                            className="form-control mb-3"
-                            type="text"
-                            placeholder="아이디를 입력해 주세요"
-                            value={loginId}
-                            onChange={(e) => setLoginId(e.target.value)} />
+                <label className="form-label">아이디</label>
+                <input
+                    className="form-control mb-3"
+                    type="text"
+                    placeholder="아이디를 입력해 주세요"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)} />
 
-                        <label className="form-label">비밀번호</label>
-                        <input
-                            className="form-control mb-3"
-                            type="password"
-                            placeholder="비밀번호를 입력해 주세요"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)} />
+                <label className="form-label">비밀번호</label>
+                <input
+                    className="form-control mb-3"
+                    type="password"
+                    placeholder="비밀번호를 입력해 주세요"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} />
 
-                        {error && <p className="text-danger" style={{ whiteSpace: 'pre-line' }}>{error}</p>}
-                        <button type="submit" className="btn btn-primary w-100 mt-2">로그인</button>
-                    </form>
+                {error && <p className="text-danger" style={{ whiteSpace: 'pre-line' }}>{error}</p>}
+                <button type="submit" className="btn btn-primary w-100 mt-2">로그인</button>
+            </form>
+
+                    <small className="copyright d-block text-center">© 2026 SM Console. All rights reserved.</small>
                 </div>
             </div>
 
-            {/* ✅ 점검 팝업 - 최상위 레벨에 독립적으로 위치 */}
             {isUnderMaintenance() && showMaintenancePopup && (
-                <div style={{
-                    position: 'fixed',
-                    top: '100px',
-                    left: '100px',
-                    width: '360px',
-                    zIndex: 1000,
-                }}>
+                <div style={{ position: 'fixed', top: '100px', left: '100px', width: '360px', zIndex: 1000 }}>
                     <div className="card border-0 shadow" style={{ borderRadius: '16px' }}>
                         <div className="card-body p-4 text-center">
                             <div className="d-flex justify-content-end mb-2">
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    onClick={() => setShowMaintenancePopup(false)}></button>
+                                <button type="button" className="btn-close" onClick={() => setShowMaintenancePopup(false)}></button>
                             </div>
-
                             <div style={{ fontSize: '48px' }}>⚠️</div>
                             <h4 className="fw-bold mt-2">지금은 시스템 점검 중입니다.</h4>
-                            <p className="text-muted small mb-3">
-                                안정적인 서비스 제공을 위해 아래와 같이 점검 작업을 진행 중입니다.
-                            </p>
+                            <p className="text-muted small mb-3">안정적인 서비스 제공을 위해 아래와 같이 점검 작업을 진행 중입니다.</p>
                             <div className="bg-light rounded p-3 text-start mb-3">
                                 <p className="mb-1 small"><strong>■ 점검 일시:</strong> {systemSetting.startAt} ~ {systemSetting.endAt}</p>
                                 <p className="mb-0 small"><strong>■ 점검 영향:</strong> {systemSetting.message}</p>
                             </div>
-                            <p className="text-muted small mb-0">
-                                점검 시간은 작업 상황에 따라 조정될 수 있습니다.<br />
-                                이용에 불편을 드려 죄송합니다.
-                            </p>
+                            <p className="text-muted small mb-0">점검 시간은 작업 상황에 따라 조정될 수 있습니다.<br />이용에 불편을 드려 죄송합니다.</p>
                         </div>
                     </div>
                 </div>

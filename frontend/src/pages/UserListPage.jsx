@@ -3,6 +3,11 @@ import {getUser, getUserStats, downloadUser, uploadUser} from "../api/usersApi"
 import StatCard from '../components/StatCard';
 import UserDetailModal from '../components/UserDetailModal';
 
+const statusColors = {
+  ACTIVE: { bg: '#A8E0BC', text: '#1F5C3D' },
+  DORMANT: { bg: '#F9DFA0', text: '#7A5A0F' },
+  WITHDRAWN: { bg: '#F5B7B1', text: '#8B2E2A' }
+};
 
 function UserListPage() {
     const [users, setUsers] = useState([]);
@@ -127,7 +132,13 @@ function UserListPage() {
                 <td>{user.loginId}</td>
                 <td>{user.maskedPhone}</td>
                 <td>{user.maskedEmail}</td>
-                <td>{user.status}</td>
+                <td>
+                    <span
+                     className="badge"
+                     style={{
+                     backgroundColor: statusColors[user.status]?.bg,
+                     color: statusColors[user.status]?.text}}>
+                    {user.status}</span></td>
                 <td>{user.createdAt}</td>
             </tr>
             ))}

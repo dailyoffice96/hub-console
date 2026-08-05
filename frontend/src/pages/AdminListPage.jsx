@@ -5,6 +5,7 @@ import axiosInstance from '../api/axiosInstance';
 import SystemModal from '../components/SystemModal';
 
 
+
 function AdminListPage() {
     const [admins, setAdmins] = useState([]);
     const [name, setName] = useState("");
@@ -85,10 +86,10 @@ function AdminListPage() {
                     <option value="ADMIN">팀장</option>
                     <option value="STAFF">직원</option>
                 </select>
-                <button className="btn btn-primary" onClick={handleSearch}>검색</button>
+                <button className="btn btn-primary me-2" onClick={handleSearch}>검색</button>
                     {myRole === 'SUPER_ADMIN' && (
                         <button className="btn btn-warning ms-auto" onClick={() => setShowSystemModal(true)}>
-                            점검 설정
+                            점검
                         </button>
                     )}
             </div>

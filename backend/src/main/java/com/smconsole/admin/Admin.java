@@ -31,6 +31,9 @@ public class Admin{
     @Enumerated(EnumType.STRING)
     private AdminRole role;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     @Column(name="login_fail_count", nullable = false)
     private int loginFailCount = 0;
 

@@ -64,6 +64,25 @@ public class DataInitializer implements CommandLineRunner {
             adminRepository.save(admin3);
         }
 
+        if (adminRepository.findByLoginId("staff02").isEmpty()) {
+            Admin admin4 = new Admin();
+            admin4.setLoginId("staff02");
+            admin4.setPasswordHash(passwordEncoder.encode("1234"));
+            admin4.setName("개미");
+            admin4.setRole(AdminRole.STAFF);
+            adminRepository.save(admin4);
+        }
+
+        if (adminRepository.findByLoginId("staff03").isEmpty()) {
+            Admin admin5 = new Admin();
+            admin5.setLoginId("staff03");
+            admin5.setPasswordHash(passwordEncoder.encode("1234"));
+            admin5.setName("직돌이");
+            admin5.setRole(AdminRole.STAFF);
+            adminRepository.save(admin5);
+        }
+
+
         if (userRepository.count() == 0) {
             String[] names = {"장원영", "김철수", "이영희", "박민수", "최지훈", "장원영", "박영희", "박민수", "홍길동", "홍홍", "홍철"};
             String[] phones = {"010-1111-2222", "010-2222-3333", "010-3333-4444", "010-4444-5555", "010-5555-6666", "010-1111-2322", "010-2222-3313", "010-3333-4144", "010-4444-5525", "010-5555-3666", "010-6666-7477"};

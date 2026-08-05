@@ -60,10 +60,13 @@ public class AdminService {
 
         Admin currentAdmin = getCurrentAdmin();
 
+        target.setDeleted(true);
+        adminRepository.save(target);
+
         auditLogService.log(currentAdmin, AuditAction.DELETE, AuditTargetType.INQUIRY, target.getId(),
                 "관리자 계정 삭제: " + target.getName() + "(" + target.getLoginId() + ")");
 
-        adminRepository.deleteById(id);
+
     }
 
     private Admin getCurrentAdmin() {

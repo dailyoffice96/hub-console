@@ -6,7 +6,8 @@ import IncidentDetailModal from '../components/IncidentDetailModal';
 import { formatDateTime } from '../utils/format';
 
 const statusLabels = { RECEIVED: '접수', IN_PROGRESS: '처리중', DONE: '해결' };
-const severityLabels = { LOW: '낮음', MEDIUM: '중간', HIGH: '높음', CRITICAL: '크리티컬' };
+const severityLabels = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
+const severityColor = { LOW: '#94D2BD', MEDIUM: '#F9DFA0', HIGH: '#F4A261', CRITICAL: '#E63946' };
 
 function IncidentListPage() {
   const [incidents, setIncidents] = useState([]);
@@ -90,6 +91,7 @@ function IncidentListPage() {
             <th>상태</th>
             <th>등록자</th>
             <th>발생일시</th>
+            <th>SLA 기한</th>
           </tr>
         </thead>
         <tbody>
@@ -97,10 +99,25 @@ function IncidentListPage() {
             <tr key={incident.id} onClick={() => setSelectedIncident(incident)} style={{ cursor: 'pointer' }}>
               <td>{page * 10 + index + 1}</td>
               <td>{incident.title}</td>
-              <td>{severityLabels[incident.severity]}</td>
+              <td>
+              <div style={{ display: 'flex', gap: '2px' }}>
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: '16px',
+                    height: '11px',
+                    borderRadius: '2px',
+                    marginTop: '8px',
+                    backgroundColor: i <= severityLabels[incident.severity]
+                      ? severityColor[incident.severity]
+                      : '#E9ECEF'}} />
+              ))}
+               </div></td>
               <td>{statusLabels[incident.status]}</td>
               <td>{incident.reporter || '-'}</td>
               <td>{formatDateTime(incident.occurredAt)}</td>
+              <td>{formatDateTime(incident.slaDueAt)}</td>
             </tr>
           ))}
         </tbody>

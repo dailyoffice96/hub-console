@@ -10,10 +10,10 @@ function Header() {
 
     const pageTitles = {
         '/users': '회원관리',
-        '/admins': '관리자관리',
-        '/inquiries': '문의관리',
-        '/incidents': '장애관리',
-        '/auditLog': '감사로그',
+        '/admins': '관리자 목록',
+        '/inquiries': '문의사항',
+        '/incidents': '장애사항',
+        '/auditLog': 'Audit Log',
     };
 
     const title = pageTitles[location.pathname] || 'SM Console';

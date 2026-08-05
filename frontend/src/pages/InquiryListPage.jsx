@@ -4,6 +4,11 @@ import { getInquiry, getInquiryStats } from "../api/inquiryApi";
 import InquiryDetailModal from '../components/InquiryDetailModal';
 
 const statusLabels = { WAITING: '대기', IN_PROGRESS: '처리중', DONE: '완료' };
+const statusColors = {
+  ACTIVE: { bg: '#A8E0BC', text: '#1F5C3D' },
+  DORMANT: { bg: '#F9DFA0', text: '#7A5A0F' },
+  WITHDRAWN: { bg: '#F5B7B1', text: '#8B2E2A' }
+};
 const typeLabels = { ACCOUNT: '계정문의', PAYMENT: '결제문의', TECHNICAL: '기술문의', SERVICE: '서비스문의', ETC: '기타' };
 
 function InquiryListPage() {
@@ -98,7 +103,7 @@ function InquiryListPage() {
               <td>{inquiry.title}</td>
               <td>{typeLabels[inquiry.type]}</td>
               <td>{statusLabels[inquiry.status]}</td>
-              <td>{inquiry.assigneeName || '미배정'}</td>
+              <td>{inquiry.assigneeName || '-'}</td>
               <td>{inquiry.createdAt}</td>
             </tr>
           ))}

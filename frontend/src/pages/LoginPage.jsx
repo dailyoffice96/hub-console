@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/authapi";
-import { getSystemSetting } from "../api/systemSettingApi";
+import { login } from "../api/authApi";
+import { getSystemSetting } from "../api/systemsettingApi";
 import image1 from "../images/11.png";
 import image2 from "../images/22.png";
 import image3 from "../images/33.png";

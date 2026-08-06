@@ -1,7 +1,7 @@
 ﻿import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://sm-console-production-6596.up.railway.app',
+  baseURL: '',
   withCredentials: true,
     headers: {
       'Cache-Control': 'no-cache',

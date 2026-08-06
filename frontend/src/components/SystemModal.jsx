@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSystemSetting, saveSystemSetting } from '../api/systemSettingApi';
+import { getSystemSetting, saveSystemSetting } from '../api/systemsettingApi';
 
 function SystemModal({ onClose }) {
   const [message, setMessage] = useState("");

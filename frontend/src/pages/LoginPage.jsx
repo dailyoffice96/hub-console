@@ -91,7 +91,7 @@ function LoginPage() {
                     <h2 className="fw-bold">⬡ SM <span>Console</span></h2>
                     <p className="text-secondary mb-4">내부 직원 및 관리자 전용 관리 콘솔</p>
 
-                    <form onSubmit={handleLogin}>
+            <form onSubmit={handleLogin}>
                 <label className="form-label">아이디</label>
                 <input
                     className="form-control mb-3"

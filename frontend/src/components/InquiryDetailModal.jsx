@@ -40,7 +40,7 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
 
   const handleSave = async () => {
     if (tempStatus !== detail.status) {
-      await updateStatus(inquiry.id, tempStatus);
+      await updateStatus(inquiry.id, tempStatus, detail.version);
     }
     if (String(tempAssigneeId) !== String(detail.assigneeId || "")) {
       await assignInquiry(inquiry.id, tempAssigneeId);

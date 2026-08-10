@@ -26,6 +26,7 @@ public class InquiryService {
     private final AuditLogService auditLogService;
 
 
+
     // 1. 목록조회 (검색+필터+페이징)
     public Page<InquiryResponse>getInquiry(
             String assigneeName, InquiryStatus status,
@@ -95,9 +96,11 @@ public class InquiryService {
     }
 
     // 4. 상태 변경(이력 기록 포함, 트랜젹션으로 묶입)
-    public InquiryResponse updateStatus(Long id, InquiryStatus status){
-        Inquiry inquiry = inquiryRepository.findById(id)
+    public InquiryResponse updateStatus(Long id, InquiryStatus status, Long version){
+        Inquiry inquiry = inquiryRepository.findByIdAndVersion(id, version)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
+
+        inquiry.setVersion(version);
 
         InquiryStatus oldState = inquiry.getStatus();
 

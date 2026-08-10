@@ -2,6 +2,7 @@ package com.smconsole.incident;
 
 import com.smconsole.admin.Admin;
 import com.smconsole.admin.AdminRepository;
+import com.smconsole.notification.SlackNotificationService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.smconsole.auditlog.AuditAction;
 import com.smconsole.auditlog.AuditLogService;
@@ -24,6 +25,7 @@ public class IncidentService {
     private final IncidentStatusHistoryRepository incidentStatusHistoryRepository;
     private final AdminRepository adminRepository;
     private final AuditLogService auditLogService;
+    private final SlackNotificationService slackNotificationService;
 
     // 1. 목록조회
     public Page<IncidentResponse> getIncident(
@@ -89,13 +91,26 @@ public class IncidentService {
         auditLogService.log(incident.getReporter(), AuditAction.CREATE, AuditTargetType.INCIDENT, incident.getId(),
                 "장애 등록: " + incident.getTitle());
 
+        try {
+            slackNotificationService.notification(
+                    "🚨 새 장애가 등록되었습니다\n제목: " + incident.getTitle() + "\n심각도: " + incident.getSeverity()
+            );
+        } catch (Exception e) {
+            System.out.println("Slack 알림 전송 실패: " + e.getMessage());
+        }
+
+
+
         return toResponse(incident);
     }
 
     // 5. 상태변경 (이력 기록 포함)
-    public IncidentResponse updateStatus(Long id, IncidentStatus status) {
-        Incident incident = incidentRepository.findById(id)
+    public IncidentResponse updateStatus(Long id, IncidentStatus status, Long version) {
+        Incident incident = incidentRepository.findByIdAndVersion(id, version)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장애사항입니다."));
+
+        incident.setVersion(version);
+
 
         IncidentStatus oldStatus = incident.getStatus();
 

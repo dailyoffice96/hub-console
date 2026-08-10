@@ -11,8 +11,8 @@ export const createComment = (id, content) =>
     headers: { 'Content-Type': 'application/json' }
   });
 
-export const updateStatus = (id, status) =>
-  axiosInstance.put(`/api/inquiries/${id}/status`, { status }, {
+export const updateStatus = (id, status, version) =>
+  axiosInstance.put(`/api/inquiries/${id}/status`, { status, version }, {
     headers: { 'Content-Type': 'application/json' }
   });
 

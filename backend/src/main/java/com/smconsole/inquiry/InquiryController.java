@@ -45,7 +45,7 @@ public class InquiryController {
     @PutMapping("/{id}/status")
     public ResponseEntity<InquiryResponse> updateStatus(
             @PathVariable Long id, @RequestBody StatusRequest request) {
-        InquiryResponse inquiry = inquiryService.updateStatus(id, request.status());
+        InquiryResponse inquiry = inquiryService.updateStatus(id, request.status(), request.version());
         return ResponseEntity.ok(inquiry);
     }
 

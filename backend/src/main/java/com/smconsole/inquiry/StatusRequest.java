@@ -1,2 +1,2 @@
 package com.smconsole.inquiry;
-public record StatusRequest(InquiryStatus status) {}
+public record StatusRequest(InquiryStatus status, Long version) {}

@@ -1,3 +1,3 @@
 package com.smconsole.incident;
 
-public record IncidentStatusRequest(IncidentStatus status) { }
+public record IncidentStatusRequest(IncidentStatus status, Long version) { }

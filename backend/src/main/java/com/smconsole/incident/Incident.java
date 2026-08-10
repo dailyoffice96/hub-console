@@ -20,6 +20,9 @@ public class Incident {
     @Column(name="incident_id")
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String title;
 

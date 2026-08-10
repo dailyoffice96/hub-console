@@ -43,8 +43,8 @@ public class IncidentController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<IncidentResponse> updateStatus(
-            @PathVariable Long id, @RequestBody IncidentStatusRequest request){
-        IncidentResponse incident = incidentService.updateStatus(id, request.status());
+            @PathVariable Long id,  @RequestBody IncidentStatusRequest request){
+        IncidentResponse incident = incidentService.updateStatus(id, request.status(), request.version());
         return ResponseEntity.ok(incident);
     }
 }

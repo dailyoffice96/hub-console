@@ -22,7 +22,7 @@ function IncidentDetailModal({ incident, onClose, onUpdated }) {
 
     const handleSave = async () => {
       if (tempStatus !== detail.status) {
-        await updateIncidentStatus(incident.id, tempStatus);
+        await updateIncidentStatus(incident.id, tempStatus, detail.version);
         fetchDetail();
         onUpdated();
         alert("저장되었습니다.");

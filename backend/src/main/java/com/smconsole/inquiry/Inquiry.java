@@ -21,6 +21,9 @@ public class Inquiry {
     @Column(name = "inquiry_id")
     private Long id;
 
+    @Version
+    private Long version;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

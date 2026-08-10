@@ -11,7 +11,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "admins")
+@Table(name = "admins", indexes = {
+        @Index(name = "idx_admin_name", columnList = "name"),
+        @Index(name = "idx_admin_role", columnList = "role"),
+})
 public class Admin{
 
     @Id

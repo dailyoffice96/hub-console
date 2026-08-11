@@ -4,6 +4,8 @@ import com.smconsole.auditlog.AuditAction;
 import com.smconsole.auditlog.AuditLogService;
 import com.smconsole.auditlog.AuditTargetType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +37,7 @@ public class AdminService {
         return admins.map(this::toResponse);
     }
 
+    @Cacheable(value = "adminStats")
     public AdminStatsResponse getStats() {
         long total = adminRepository.count();
         long locked = adminRepository.countByIsLockedTrue();
@@ -45,6 +48,7 @@ public class AdminService {
         return new AdminStatsResponse(total, locked, superAdmin, admin, staff);
     }
 
+    @CacheEvict(value = "adminStats", allEntries = true)
     public AdminResponse unlock(Long id) {
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
@@ -54,6 +58,7 @@ public class AdminService {
         return toResponse(admin);
     }
 
+    @CacheEvict(value = "adminStats", allEntries = true)
     public void delete(Long id) {
         Admin target = adminRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));

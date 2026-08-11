@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.smconsole.auditlog.AuditTargetType;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -63,11 +65,13 @@ public class IncidentService {
                 incident.getSladueAt(),
                 incident.getResolvedAt(),
                 incident.getCreatedAt(),
+                incident.getVersion(),
                 histories.stream().map(this::toHistoryResponse).toList()
         );
     }
 
     // 3. 통계
+    @Cacheable(value = "incidentStats")
     public IncidentStatsResponse getStats() {
         long received = incidentRepository.countByStatus(IncidentStatus.RECEIVED);
         long inProgress = incidentRepository.countByStatus(IncidentStatus.IN_PROGRESS);
@@ -76,6 +80,7 @@ public class IncidentService {
     }
 
     // 4. 등록
+    @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse createIncident(IncidentCreateRequest request) {
         Incident incident = new Incident();
         incident.setTitle(request.title());
@@ -105,9 +110,10 @@ public class IncidentService {
     }
 
     // 5. 상태변경 (이력 기록 포함)
+    @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse updateStatus(Long id, IncidentStatus status, Long version) {
         Incident incident = incidentRepository.findByIdAndVersion(id, version)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장애사항입니다."));
+                .orElseThrow(() -> new IllegalStateException("다른 관리자가 상태사항을 이미 수정했습니다. 새로고침 후 시도해 주세요."));
 
         incident.setVersion(version);
 

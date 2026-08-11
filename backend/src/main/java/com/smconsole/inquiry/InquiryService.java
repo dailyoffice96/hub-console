@@ -11,6 +11,8 @@ import com.smconsole.auditlog.AuditAction;
 import com.smconsole.auditlog.AuditLogService;
 import org.springframework.transaction.annotation.Transactional;
 import com.smconsole.auditlog.AuditTargetType;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 
 import java.util.List;
@@ -65,11 +67,13 @@ public class InquiryService {
                 inquiry.getStatus(),
                 inquiry.getCreatedAt(),
                 inquiry.getCompletedAt(),
+                inquiry.getVersion(),
                 comments.stream().map(this::toCommentResponse).toList(),
                 histories.stream().map(this::toHistoryResponse).toList()
         );
     }
 
+    @Cacheable(value = "inquiryStats")
     public InquiryStatsResponse getStats(){
         long waiting = inquiryRepository.countByStatus(InquiryStatus.WAITING);
         long inProgress = inquiryRepository.countByStatus(InquiryStatus.IN_PROGRESS);
@@ -96,9 +100,10 @@ public class InquiryService {
     }
 
     // 4. 상태 변경(이력 기록 포함, 트랜젹션으로 묶입)
+    @CacheEvict(value = "inquiryStats", allEntries = true)
     public InquiryResponse updateStatus(Long id, InquiryStatus status, Long version){
         Inquiry inquiry = inquiryRepository.findByIdAndVersion(id, version)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
+                .orElseThrow(() -> new IllegalStateException("다른 관리자가 상태사항을 이미 수정했습니다. 새로고침 후 시도해 주세요."));
 
         inquiry.setVersion(version);
 
@@ -130,12 +135,17 @@ public class InquiryService {
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
+        if (adminId == null) {
+            inquiry.setAssignee(null);   // 미배정으로 처리
+        } else {
+            Admin admin = adminRepository.findById(adminId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
+            inquiry.setAssignee(admin);
+        }
 
-        inquiry.setAssignee(admin);
+
+
         inquiryRepository.save(inquiry);
-
         return toResponse(inquiry);
 
     }

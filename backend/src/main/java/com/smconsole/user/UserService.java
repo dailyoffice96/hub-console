@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDate;
 
@@ -42,6 +44,7 @@ public class UserService {
         return toResponse(user);
     }
 
+    @Cacheable(value = "userStats")
     public UserStatsResponse  getStats(){
         long active = userRepository.countByStatus(UserStatus.ACTIVE);
         long dormant = userRepository.countByStatus(UserStatus.DORMANT);
@@ -62,6 +65,7 @@ public class UserService {
         return toResponse(user);
     }
 
+    @CacheEvict(value = "userStats", allEntries = true)
     public UserResponse dormant(Long id){
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));

@@ -23,9 +23,4 @@ public class DailyStatsController {
         return ResponseEntity.ok(dailyStats);
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<List<DailyStats>> aggregateYesterday(){
-        List<DailyStats> dailyStats = dailyStatsService.aggregateYesterday();
-        return ResponseEntity.ok(dailyStats);
-    }
 }

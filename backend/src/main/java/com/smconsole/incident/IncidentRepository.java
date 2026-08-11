@@ -21,6 +21,7 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     Page<Incident> findBySeverity(IncidentSeverity severity, Pageable pageable);
 
     long countByStatus(IncidentStatus status);
+    long countBySeverity(IncidentSeverity status);
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);   // ← 이 줄 추가
 }
 

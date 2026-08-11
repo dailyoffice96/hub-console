@@ -46,6 +46,7 @@ public class SecurityConfig {
                     .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/images/**").permitAll()
+                            .requestMatchers("/api/incidents/webhook").permitAll() // 2. 여기! 로그인 없이 접속 허용
                             .requestMatchers("/login").permitAll()
                             .anyRequest().authenticated()
 

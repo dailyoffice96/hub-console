@@ -18,8 +18,8 @@ import java.time.Duration;
 자주 조회되는데, 자주 안 바뀌는 데이터 조회 비용(쿼리 복잡도)이 좀 있는 것*/
 
 
-@Configuration
-@EnableCaching
+//@Configuration
+//@EnableCaching
 public class RedisCacheConfig {
 
     @Bean

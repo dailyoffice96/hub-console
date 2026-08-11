@@ -6,14 +6,13 @@ import com.smconsole.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
 public class DailyStatsService {
 
     private final DailyStatsRepository dailyStatsRepository;
@@ -27,17 +26,17 @@ public class DailyStatsService {
 
     // cron = 초 / 분 / 시 / 일 / 월 / 요일
     @Scheduled(cron = "0 0 0 * * *")
-    public List<DailyStats> aggregateYesterday() {
+    @Transactional
+    public void aggregateYesterday() {
+        System.out.println("=== 일일 통계 집계 작업 시작 ===");
+
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        long newUsers = userRepository.countByCreatedAtBetween(
-                yesterday.atStartOfDay(),
-                yesterday.plusDays(1).atStartOfDay()
-        );
-        long newInquiries = inquiryRepository.countByCreatedAtBetween(
-                yesterday.atStartOfDay(),
-                yesterday.plusDays(1).atStartOfDay()
-        );
+        // User와 Inquiry의 createdAt은 LocalDate 타입이므로 LocalDate를 전달
+        long newUsers = userRepository.countByCreatedAtBetween(yesterday, yesterday);
+        long newInquiries = inquiryRepository.countByCreatedAtBetween(yesterday, yesterday);
+
+        // Incident의 createdAt은 LocalDateTime 타입이므로 시간 범위를 전달
         long newIncidents = incidentRepository.countByCreatedAtBetween(
                 yesterday.atStartOfDay(),
                 yesterday.plusDays(1).atStartOfDay()
@@ -50,9 +49,6 @@ public class DailyStatsService {
         dailyStats.setNewIncidents(newIncidents);
 
         dailyStatsRepository.save(dailyStats);
-
-
-        return dailyStatsRepository.findAll();
-
+        System.out.println("=== 일일 통계 집계 작업 완료 ===");
     }
 }

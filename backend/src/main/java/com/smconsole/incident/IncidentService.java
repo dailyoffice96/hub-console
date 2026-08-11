@@ -15,6 +15,7 @@ import com.smconsole.auditlog.AuditTargetType;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -79,6 +80,14 @@ public class IncidentService {
         return new IncidentStatsResponse(received, inProgress, done);
     }
 
+    public IncidentSeverityResponse getSeverityStats() {
+        long critical = incidentRepository.countBySeverity(IncidentSeverity.CRITICAL);
+        long high = incidentRepository.countBySeverity(IncidentSeverity.HIGH);
+        long medium = incidentRepository.countBySeverity(IncidentSeverity.MEDIUM);
+        long low = incidentRepository.countBySeverity(IncidentSeverity.LOW);
+        return new IncidentSeverityResponse(critical, high, medium, low);
+    }
+
     // 4. 등록
     @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse createIncident(IncidentCreateRequest request) {
@@ -109,6 +118,7 @@ public class IncidentService {
         return toResponse(incident);
     }
 
+
     // 5. 상태변경 (이력 기록 포함)
     @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse updateStatus(Long id, IncidentStatus status, Long version) {
@@ -137,6 +147,28 @@ public class IncidentService {
 
         auditLogService.log(admin, AuditAction.UPDATE, AuditTargetType.INCIDENT, incident.getId(),
                 "상태변경: " + oldStatus + " → " + status);
+
+        return toResponse(incident);
+    }
+
+    public IncidentResponse createWebhook(WebhookIncidentRequest request){
+        Incident incident = new Incident();
+
+        incident.setTitle(request.title());
+        incident.setContent(request.content());
+        incident.setSeverity(request.severity());
+        incident.setStatus(IncidentStatus.RECEIVED);
+        incident.setOccurredAt(LocalDateTime.now());
+
+        incidentRepository.save(incident);
+
+        try {
+            slackNotificationService.notification(
+                    "🤖 자동 감지된 장애가 등록되었습니다\n제목: " + incident.getTitle() + "\n심각도: " + incident.getSeverity()
+            );
+        } catch (Exception e) {
+            System.out.println("Slack 알림 전송 실패: " + e.getMessage());
+        }
 
         return toResponse(incident);
     }

@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByNameAndPhone(String name, String phone, Pageable pageable);
     Page<User> findByStatus(UserStatus status, Pageable pageable);
     long countByStatus(UserStatus status);
-    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);  // ← 이 줄 추가
+    long countByCreatedAtBetween(LocalDate start, LocalDate end);  // ← 이 줄 추가
 
 }
 

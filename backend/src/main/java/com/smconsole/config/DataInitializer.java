@@ -37,6 +37,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
+        // 1. 관리자 계정 시드 데이터
         if (adminRepository.findByLoginId("super01").isEmpty()) {
             Admin admin1 = new Admin();
             admin1.setLoginId("super01");
@@ -64,28 +65,10 @@ public class DataInitializer implements CommandLineRunner {
             adminRepository.save(admin3);
         }
 
-        if (adminRepository.findByLoginId("staff02").isEmpty()) {
-            Admin admin4 = new Admin();
-            admin4.setLoginId("staff02");
-            admin4.setPasswordHash(passwordEncoder.encode("1234"));
-            admin4.setName("개미");
-            admin4.setRole(AdminRole.STAFF);
-            adminRepository.save(admin4);
-        }
-
-        if (adminRepository.findByLoginId("staff03").isEmpty()) {
-            Admin admin5 = new Admin();
-            admin5.setLoginId("staff03");
-            admin5.setPasswordHash(passwordEncoder.encode("1234"));
-            admin5.setName("직돌이");
-            admin5.setRole(AdminRole.STAFF);
-            adminRepository.save(admin5);
-        }
-
-
+        // 2. 사용자 시드 데이터 (오늘 가입한 데이터 포함)
         if (userRepository.count() == 0) {
-            String[] names = {"장원영", "김철수", "이영희", "박민수", "최지훈", "장원영", "박영희", "박민수", "홍길동", "홍홍", "홍철"};
-            String[] phones = {"010-1111-2222", "010-2222-3333", "010-3333-4444", "010-4444-5555", "010-5555-6666", "010-1111-2322", "010-2222-3313", "010-3333-4144", "010-4444-5525", "010-5555-3666", "010-6666-7477"};
+            String[] names = {"장원영", "김철수", "이영희", "박민수", "최지훈"};
+            String[] phones = {"010-1111-2222", "010-2222-3333", "010-3333-4444", "010-4444-5555", "010-5555-6666"};
 
             for (int i = 0; i < names.length; i++) {
                 User user = new User();
@@ -94,22 +77,44 @@ public class DataInitializer implements CommandLineRunner {
                 user.setPhone(phones[i]);
                 user.setEmail("user" + (i + 1) + "@test.com");
                 user.setStatus(UserStatus.ACTIVE);
+                // 만약 User 엔티티에 가입일 필드(createdAt)가 있다면 오늘 날짜로 설정
+                // user.setCreatedAt(LocalDateTime.now().minusHours(i));
                 userRepository.save(user);
             }
         }
 
+        // 3. 오늘 날짜 기준 추가 사용자 (통계 집계 테스트용)
+        if (userRepository.findByLoginId("today_user1").isEmpty()) {
+            User todayUser1 = new User();
+            todayUser1.setLoginId("today_user1");
+            todayUser1.setName("신규유저1");
+            todayUser1.setPhone("010-9999-1111");
+            todayUser1.setEmail("today1@test.com");
+            todayUser1.setStatus(UserStatus.ACTIVE);
+            userRepository.save(todayUser1);
+
+            User todayUser2 = new User();
+            todayUser2.setLoginId("today_user2");
+            todayUser2.setName("신규유저2");
+            todayUser2.setPhone("010-9999-2222");
+            todayUser2.setEmail("today2@test.com");
+            todayUser2.setStatus(UserStatus.ACTIVE);
+            userRepository.save(todayUser2);
+        }
+
+        // 4. 문의사항 시드 데이터
         if (inquiryRepository.count() == 0) {
             List<User> allUsers = userRepository.findAll();
             Admin assignee = adminRepository.findByLoginId("admin01").orElse(null);
 
             if (!allUsers.isEmpty()) {
-                String[] titles = {"로그인이 안 돼요", "환불 요청합니다", "화면이 이상해요", "탈퇴하고 싶어요", "결제 오류 문의"};
-                InquiryType[] types = {InquiryType.ACCOUNT, InquiryType.PAYMENT, InquiryType.TECHNICAL, InquiryType.SERVICE, InquiryType.ETC};
-                InquiryStatus[] statuses = {InquiryStatus.WAITING, InquiryStatus.IN_PROGRESS, InquiryStatus.DONE, InquiryStatus.WAITING, InquiryStatus.IN_PROGRESS};
+                String[] titles = {"로그인이 안 돼요", "환불 요청합니다", "화면이 이상해요", "오늘 가입했는데 오류나요"};
+                InquiryType[] types = {InquiryType.ACCOUNT, InquiryType.PAYMENT, InquiryType.TECHNICAL, InquiryType.SERVICE};
+                InquiryStatus[] statuses = {InquiryStatus.WAITING, InquiryStatus.IN_PROGRESS, InquiryStatus.DONE, InquiryStatus.WAITING};
 
                 for (int i = 0; i < titles.length; i++) {
                     Inquiry inquiry = new Inquiry();
-                    inquiry.setUser(allUsers.get(i % allUsers.size()));   // 반드시 존재하는 회원을 순환하며 배정
+                    inquiry.setUser(allUsers.get(i % allUsers.size()));
                     inquiry.setAssignee(i % 2 == 0 ? assignee : null);
                     inquiry.setType(types[i]);
                     inquiry.setTitle(titles[i]);
@@ -120,23 +125,21 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // 장애 목록 시드 데이터
+        // 5. 장애 목록 시드 데이터 (오늘 발생한 장애 포함)
         if (incidentRepository.count() == 0) {
             Admin reporter1 = adminRepository.findByLoginId("admin01").orElse(null);
             Admin reporter2 = adminRepository.findByLoginId("staff01").orElse(null);
 
             if (reporter1 != null && reporter2 != null) {
-                String[] titles = {"결제 서버 응답 지연", "로그인 세션 만료 오류", "회원 조회 API 500 에러", "이미지 업로드 실패", "배치 작업 미실행"};
+                String[] titles = {"[긴급] 오늘 오전 결제 연동 오류", "로그인 세션 만료 이슈", "회원 조회 API 500 에러"};
                 String[] contents = {
-                        "결제 API 응답 시간이 평소보다 5배 이상 느려짐. 트래픽 급증 추정.",
-                        "일부 사용자 로그인 후 세션이 비정상적으로 빨리 만료되는 현상 발생.",
-                        "회원 상세조회 API 호출 시 간헐적으로 500 에러 발생, 로그 확인 필요.",
-                        "프로필 이미지 업로드 시 파일 크기 무관하게 실패하는 현상.",
-                        "야간 배치(정산) 작업이 스케줄대로 실행되지 않음."
+                        "오늘 오전부터 PG사 연동 과정에서 타임아웃 발생.",
+                        "일부 사용자 로그인 후 세션이 비정상적으로 만료됨.",
+                        "회원 상세조회 API 호출 시 간헐적으로 500 에러 발생."
                 };
-                IncidentSeverity[] severities = {IncidentSeverity.CRITICAL, IncidentSeverity.HIGH, IncidentSeverity.MEDIUM, IncidentSeverity.LOW, IncidentSeverity.HIGH};
-                IncidentStatus[] statuses = {IncidentStatus.RECEIVED, IncidentStatus.IN_PROGRESS, IncidentStatus.DONE, IncidentStatus.RECEIVED, IncidentStatus.IN_PROGRESS};
-                Admin[] reporters = {reporter1, reporter2, reporter1, reporter2, reporter1};
+                IncidentSeverity[] severities = {IncidentSeverity.CRITICAL, IncidentSeverity.HIGH, IncidentSeverity.MEDIUM};
+                IncidentStatus[] statuses = {IncidentStatus.RECEIVED, IncidentStatus.IN_PROGRESS, IncidentStatus.DONE};
+                Admin[] reporters = {reporter1, reporter2, reporter1};
 
                 for (int i = 0; i < titles.length; i++) {
                     Incident incident = new Incident();
@@ -145,8 +148,9 @@ public class DataInitializer implements CommandLineRunner {
                     incident.setSeverity(severities[i]);
                     incident.setStatus(statuses[i]);
                     incident.setReporter(reporters[i]);
+                    // 오늘 발생한 시간으로 설정 (예: 2시간 전, 1시간 전 등)
                     incident.setOccurredAt(LocalDateTime.now().minusHours(i + 1));
-                    incident.setSladueAt(LocalDateTime.now().plusHours(24 - i));
+                    incident.setSladueAt(LocalDateTime.now().plusHours(24));
                     if (statuses[i] == IncidentStatus.DONE) {
                         incident.setResolvedAt(LocalDateTime.now().minusMinutes(30));
                     }
@@ -155,52 +159,18 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // 감사로그 시드 데이터
+        // 6. 감사로그 시드 데이터
         if (auditLogRepository.count() == 0) {
-            Admin superAdmin = adminRepository.findByLoginId("super01").orElse(null);
             Admin admin = adminRepository.findByLoginId("admin01").orElse(null);
-            Admin staff = adminRepository.findByLoginId("staff01").orElse(null);
 
-            if (superAdmin != null && admin != null && staff != null) {
+            if (admin != null) {
                 AuditLog log1 = new AuditLog();
                 log1.setAdmin(admin);
                 log1.setAction(AuditAction.CREATE);
                 log1.setTargetType(AuditTargetType.INCIDENT);
                 log1.setTargetId(1L);
-                log1.setDetail("장애 등록: 결제 서버 응답 지연");
+                log1.setDetail("장애 등록: [긴급] 오늘 오전 결제 연동 오류");
                 auditLogRepository.save(log1);
-
-                AuditLog log2 = new AuditLog();
-                log2.setAdmin(staff);
-                log2.setAction(AuditAction.UPDATE);
-                log2.setTargetType(AuditTargetType.INCIDENT);
-                log2.setTargetId(2L);
-                log2.setDetail("상태변경: RECEIVED → IN_PROGRESS");
-                auditLogRepository.save(log2);
-
-                AuditLog log3 = new AuditLog();
-                log3.setAdmin(admin);
-                log3.setAction(AuditAction.UPDATE);
-                log3.setTargetType(AuditTargetType.INCIDENT);
-                log3.setTargetId(3L);
-                log3.setDetail("상태변경: IN_PROGRESS → RESOLVED");
-                auditLogRepository.save(log3);
-
-                AuditLog log4 = new AuditLog();
-                log4.setAdmin(admin);
-                log4.setAction(AuditAction.UPDATE);
-                log4.setTargetType(AuditTargetType.INQUIRY);
-                log4.setTargetId(1L);
-                log4.setDetail("상태변경: WAITING → IN_PROGRESS");
-                auditLogRepository.save(log4);
-
-                AuditLog log5 = new AuditLog();
-                log5.setAdmin(superAdmin);
-                log5.setAction(AuditAction.DELETE);
-                log5.setTargetType(AuditTargetType.ADMIN);
-                log5.setTargetId(99L);
-                log5.setDetail("관리자 계정 삭제: 테스트계정(test99)");
-                auditLogRepository.save(log5);
             }
         }
     }

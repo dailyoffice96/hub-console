@@ -41,6 +41,12 @@ public class IncidentController {
         return ResponseEntity.ok(incident);
     }
 
+    @PostMapping("/webhook")
+    public ResponseEntity<IncidentResponse> createWebhook(@RequestBody WebhookIncidentRequest request){
+        IncidentResponse incident = incidentService.createWebhook(request);
+        return ResponseEntity.ok(incident);
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<IncidentResponse> updateStatus(
             @PathVariable Long id,  @RequestBody IncidentStatusRequest request){

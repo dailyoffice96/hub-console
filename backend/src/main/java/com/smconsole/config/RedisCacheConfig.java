@@ -9,8 +9,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import java.time.Duration;
+
+
+/*캐싱은 아무 데나 넣으면 안 돼요. 좋은 캐싱 후보의 조건:
+자주 조회되는데, 자주 안 바뀌는 데이터 조회 비용(쿼리 복잡도)이 좀 있는 것*/
+
 
 @Configuration
 @EnableCaching
@@ -18,6 +24,7 @@ public class RedisCacheConfig {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+
 
         // 캐시의 기본 설정 틀을 가져옴
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
@@ -38,8 +45,13 @@ public class RedisCacheConfig {
                 // Redis Value는 JSON으로 저장
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
-                                GenericJacksonJsonRedisSerializer.builder().build()
-
+                                GenericJacksonJsonRedisSerializer.builder()
+                                        .enableDefaultTyping(
+                                                BasicPolymorphicTypeValidator.builder()
+                                                        .allowIfBaseType(Object.class)
+                                                        .build()
+                                        )
+                                        .build()
                         )
                 );
 

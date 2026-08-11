@@ -14,6 +14,7 @@ public record InquiryDetailResponse(
         InquiryStatus status,
         LocalDate createdAt,
         LocalDate completedAt,
+        Long version,
         List<InquiryCommentResponse> comments,
         List<InquiryStatusHistoryResponse> histories
 ) {}

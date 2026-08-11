@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_name", columnList = "name"),
+        @Index(name = "idx_user_name", columnList = "user_name"),
         @Index(name = "idx_user_login_id", columnList = "login_id"),
         @Index(name = "idx_user_status", columnList = "status"),
 

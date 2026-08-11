@@ -14,5 +14,6 @@ public record IncidentDetailResponse(
         LocalDateTime slaDueAt,
         LocalDateTime resolvedAt,
         LocalDateTime createdAt,
+        Long version,
         List<IncidentStatusHistoryResponse> histories
 ) { }

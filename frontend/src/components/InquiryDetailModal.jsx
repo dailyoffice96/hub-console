@@ -39,6 +39,8 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
   }, []);
 
   const handleSave = async () => {
+      console.log("지금 보내는 버전:", detail.version);
+    try{
     if (tempStatus !== detail.status) {
       await updateStatus(inquiry.id, tempStatus, detail.version);
     }
@@ -48,6 +50,10 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
     fetchDetail();
     onUpdated();
     alert("저장되었습니다.");
+    } catch (error){
+      alert(error.response?.data?.message || "저장 중 오류가 발생했습니다.");
+      fetchDetail(); //최신 상태로 다시 불러오기
+    }
   };
 
   const handleAddComment = async () => {

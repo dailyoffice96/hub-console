@@ -11,6 +11,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class UserExcelService {
         return out.toByteArray();
     }
 
+    @CacheEvict(value = "userStats", allEntries = true)
     public String importFromExcel(MultipartFile file) throws IOException {
 
         //엑셀 파일을 읽어야 함

@@ -5,6 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface IncidentRepository extends JpaRepository<Incident, Long> {
@@ -19,5 +21,6 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     Page<Incident> findBySeverity(IncidentSeverity severity, Pageable pageable);
 
     long countByStatus(IncidentStatus status);
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);   // ← 이 줄 추가
 }
 

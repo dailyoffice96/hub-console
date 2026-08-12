@@ -49,5 +49,11 @@ public class AuditLogController {
 
         return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
     }
+
+    @GetMapping("/analyze")
+    public ResponseEntity<String> analyze(){
+        String result = auditLogService.analyze();
+        return ResponseEntity.ok(result);
+    }
 }
 

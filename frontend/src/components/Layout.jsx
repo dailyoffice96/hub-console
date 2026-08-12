@@ -1,7 +1,6 @@
 import Header from "./Header"
 import Sidebar from "./Sidebar"
 import { Outlet } from "react-router-dom"
-import bgImage from "../images/main-bg.png";
 
 function Layout() {
   return (

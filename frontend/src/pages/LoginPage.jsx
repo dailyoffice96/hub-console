@@ -4,7 +4,7 @@ import { login } from "../api/authApi";
 import { getSystemSetting } from "../api/systemsettingApi";
 import image1 from "../images/11.png";
 import image2 from "../images/22.png";
-import image3 from "../images/33.png";
+import image3 from "../images/33_1.png";
 import "../css/Login.css";
 
 const brandSlides = [
@@ -70,7 +70,7 @@ function LoginPage() {
     return (
         <div className="fullpage-bg">
             <div className="brand-overlay">
-                <div className="logo">⬡ SM <span>Console</span></div>
+                <div className="logo">⬡ Ops<span>Hub</span></div>
                  <h2 className="brand-title">{brandSlides[imgIndex].title}</h2>
                 <hr/>
                  <p className="mb-3"  style={{ fontSize: '24px' }}>{brandSlides[imgIndex].desc}</p>
@@ -88,7 +88,7 @@ function LoginPage() {
 
             <div className="login-card-wrapper">
                 <div className="login-box">
-                    <h2 className="fw-bold">⬡ SM <span>Console</span></h2>
+                    <h2 className="fw-bold">⬡ Ops<span>Hub</span></h2>
                     <p className="text-secondary mb-4">내부 직원 및 관리자 전용 관리 콘솔</p>
 
             <form onSubmit={handleLogin}>

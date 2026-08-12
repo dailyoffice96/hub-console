@@ -6,3 +6,6 @@ export const getAuditLogs = (params) =>
 export const downloadAuditLog = () => {
     return axiosInstance.get('/api/auditLogs/excel', {responseType: 'blob'});
 }
+
+export const analyzeSuspicious = () =>
+  axiosInstance.get('/api/auditLogs/analyze');

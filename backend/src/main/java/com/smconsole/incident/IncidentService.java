@@ -3,6 +3,7 @@ package com.smconsole.incident;
 import com.smconsole.admin.Admin;
 import com.smconsole.admin.AdminRepository;
 import com.smconsole.notification.SlackNotificationService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.smconsole.auditlog.AuditAction;
 import com.smconsole.auditlog.AuditLogService;
@@ -29,6 +30,8 @@ public class IncidentService {
     private final AdminRepository adminRepository;
     private final AuditLogService auditLogService;
     private final SlackNotificationService slackNotificationService;
+    // 라디오 방송을 실제로 내보내는 도구
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 1. 목록조회
     public Page<IncidentResponse> getIncident(
@@ -102,6 +105,9 @@ public class IncidentService {
 
         incidentRepository.save(incident);
 
+        //방송 장비(실제 메시지를 보낼 수 있는)/ 변환해서 보내라/보낼 주소/보낼 내용물
+        messagingTemplate.convertAndSend("/topic/incidents", toResponse(incident));
+
         auditLogService.log(incident.getReporter(), AuditAction.CREATE, AuditTargetType.INCIDENT, incident.getId(),
                 "장애 등록: " + incident.getTitle());
 
@@ -161,6 +167,9 @@ public class IncidentService {
         incident.setOccurredAt(LocalDateTime.now());
 
         incidentRepository.save(incident);
+
+        //방송 장비(실제 메시지를 보낼 수 있는)/ 변환해서 보내라/보낼 주소/보낼 내용물
+        messagingTemplate.convertAndSend("/topic/incidents", toResponse(incident));
 
         try {
             slackNotificationService.notification(

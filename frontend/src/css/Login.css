@@ -1,16 +1,18 @@
 .fullpage-bg {
     position: relative;
     min-height: 100vh;
-    background-image: url('../images/brand-bg.png');
+    background-image: url('../images/brand-bg.jpg');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     display: flex;
     align-items: center;
+
 }
 
 .brand-overlay {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     color: white;
     padding: 0 80px;
     max-width: 600px;
@@ -36,76 +38,7 @@
 
 .login-card-wrapper {
     position: relative;
-    z-index: 1;
-    margin-left: auto;
-    margin-right: 100px;
-}
-
-.login-box {
-    width: 380px;
-    background: white;
-    border-radius: 20px;
-    padding: 40px 32px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-}
-
-.login-box .input-group-text {
-    background: white;
-    border-right: none;
-}
-
-.login-box .form-control {
-    border-left: none;
-    height: 52px;
-}
-
-
-
-.copyright {
-    margin-top: 24px;
-    color: #777;
-    font-size: 12px;
-}
-
-.fullpage-bg {
-    position: relative;
-    min-height: 100vh;
-    background-image: url('../images/brand-bg.png');
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-}
-
-.brand-overlay {
-    position: relative;
-    z-index: 1;
-    color: white;
-    padding: 0 80px;
-    max-width: 600px;
-}
-
-.logo {
-    font-size: 28px;
-    font-weight: 600;
-}
-
-.logo span,
-.login-box span {
-    color: #008cff;
-}
-
-.brand-title {
-    font-size: 40px;
-    font-weight: 900;
-    line-height: 1.2;
-    margin-top: 30px;
-    margin-bottom: 16px;
-}
-
-.login-card-wrapper {
-    position: relative;
-    z-index: 1;
+    z-index: 2;
     margin-left: auto;
     margin-right: 100px;
 }
@@ -153,36 +86,20 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-
     z-index: 1;
-
-    height: 70vh;      /* 높이 기준 */
+    height: 70vh;
     width: auto;
-
     display: flex;
     justify-content: center;
     align-items: flex-end;
+    pointer-events: none;
 }
 
 .brand-slider img {
     height: 100%;
     width: auto;
-
     object-fit: contain;
     object-position: center bottom;
-
-    animation: fade 1s;
-}
-
-@keyframes fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.brand-slider img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     animation: fade 1s;
 }
 

@@ -4,8 +4,10 @@ import UserListPage from '../pages/UserListPage';
 import AdminListPage from '../pages/AdminListPage';
 import InquiryListPage from '../pages/InquiryListPage';
 import IncidentListPage from '../pages/IncidentListPage';
+import IncidentMonitoringPage from '../pages/IncidentMonitoringPage';
 import AuditLogPage from '../pages/AuditLogPage';
-import Layout from '../components/Layout';  // 실제 경로 확인 필요
+import AuditLogAnalyzePage from '../pages/AuditLogAnalyzePage';
+import Layout from '../components/Layout';
 
 function AppRoutes() {
   return (
@@ -16,7 +18,9 @@ function AppRoutes() {
         <Route path="/admins" element={<AdminListPage />} />
         <Route path="/inquiries" element={<InquiryListPage />} />
         <Route path="/incidents" element={<IncidentListPage />} />
+        <Route path="/incidents/monitoring" element={<IncidentMonitoringPage />} />
         <Route path="/auditLog" element={<AuditLogPage />} />
+        <Route path="/auditLog/analyze" element={<AuditLogAnalyzePage  />} />
       </Route>
     </Routes>
   );

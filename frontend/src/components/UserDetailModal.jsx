@@ -1,63 +1,91 @@
-﻿import {useState} from 'react';
-import {updateUser, dormantUser} from "../api/usersApi"
+﻿import { useState } from 'react';
+import { updateUser, dormantUser } from "../api/usersApi"
 
 function UserDetailModal({ user, onClose, onUpdated }) {
   const handleDormant = async () => {
-    await dormantUser(user.id);
-    onUpdated();
-    onClose();
+    try {
+      await dormantUser(user.id);
+      onUpdated();
+      onClose();
+    } catch (error) {
+      alert(error.response?.data?.message || "처리에 실패했습니다.");
+    }
   };
 
-  const statusColor = {
-    ACTIVE: 'success',
-    DORMANT: 'warning',
-    WITHDRAWN: 'secondary',
+  const statusColors = {
+    ACTIVE: { bg: '#d1e7dd', text: '#0f5132' },
+    DORMANT: { bg: '#fff3cd', text: '#664d03' },
+    WITHDRAWN: { bg: '#f8d7da', text: '#842029' },
   };
 
-
+  const statusLabels = {
+    ACTIVE: '활성',
+    DORMANT: '휴면',
+    WITHDRAWN: '탈퇴',
+  };
 
   return (
     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
       <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content border-0 shadow"
-             style={{ borderRadius: '20px', background: 'linear-gradient(180deg, #EAF2FB 0%, #FFFFFF 100%)' }}>
+        <div className="modal-content border shadow-sm p-4 rounded-4 bg-white overflow-hidden">
 
-          <div className="modal-body p-4">
-            <div className="text-center mb-4">
-              <h5 className="fw-bold mb-1" style={{ color: '#042C53' }}>{user.maskedName}님</h5>
-              <span className={`badge bg-${statusColor[user.status]}`}>{user.status}</span>
+          <div className="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
+            <div className="d-flex align-items-center gap-2">
+              <h5 className="fw-bold text-dark mb-0">{user.maskedName}님 상세 정보</h5>
+              <span
+                className="badge px-2 py-1 border"
+                style={{
+                  backgroundColor: statusColors[user.status]?.bg || '#f1f1f1',
+                  color: statusColors[user.status]?.text || '#333',
+                  borderColor: 'transparent'
+                }}
+              >
+                {statusLabels[user.status] || user.status}
+              </span>
             </div>
+            <button type="button" className="btn-close shadow-none" onClick={onClose}></button>
+          </div>
 
-            <div className="mb-2 p-2 rounded" style={{ backgroundColor: '#DCE8F7' }}>
-              <span className="text-muted" style={{ fontSize: '13px' }}>아이디</span>
-              <div>{user.loginId}</div>
-            </div>
-            <div className="mb-2 p-2 rounded" style={{ backgroundColor: '#DCE8F7' }}>
-              <span className="text-muted" style={{ fontSize: '13px' }}>전화번호</span>
-              <div>{user.maskedPhone}</div>
-            </div>
-            <div className="mb-2 p-2 rounded" style={{ backgroundColor: '#DCE8F7' }}>
-              <span className="text-muted" style={{ fontSize: '13px' }}>이메일</span>
-              <div>{user.maskedEmail}</div>
-            </div>
-            <div className="mb-3 p-2 rounded" style={{ backgroundColor: '#DCE8F7' }}>
-              <span className="text-muted" style={{ fontSize: '13px' }}>가입일</span>
-              <div>{user.createdAt}</div>
-            </div>
-
-            <div className="d-flex gap-2">
-              <button className="btn flex-fill text-white"
-                      style={{ backgroundColor: '#042C53', borderRadius: '10px' }}
-                      onClick={handleDormant}>
-                휴면 처리
-              </button>
-              <button className="btn btn-outline-secondary flex-fill"
-                      style={{ borderRadius: '10px' }}
-                      onClick={onClose}>
-                닫기
-              </button>
+          <div className="card bg-light bg-opacity-25 border p-3 rounded-3 mb-4">
+            <div className="row g-3 small">
+              <div className="col-12">
+                <span className="text-muted d-block mb-1">아이디</span>
+                <div className="fw-semibold text-dark">{user.loginId}</div>
+              </div>
+              <div className="col-12">
+                <span className="text-muted d-block mb-1">전화번호</span>
+                <div className="fw-semibold text-dark">{user.maskedPhone}</div>
+              </div>
+              <div className="col-12">
+                <span className="text-muted d-block mb-1">이메일</span>
+                <div className="fw-semibold text-dark">{user.maskedEmail}</div>
+              </div>
+              <div className="col-12">
+                <span className="text-muted d-block mb-1">가입일</span>
+                <div className="fw-semibold text-dark">{user.createdAt}</div>
+              </div>
             </div>
           </div>
+
+          <div className="d-flex justify-content-end gap-2 pt-3 border-top">
+            {user.status === 'ACTIVE' && (
+              <button
+                className="btn btn-warning px-4 fw-semibold shadow-sm text-dark"
+                style={{ height: '44px', borderRadius: '8px' }}
+                onClick={handleDormant}
+              >
+                휴면 처리
+              </button>
+            )}
+            <button
+              className="btn btn-outline-secondary px-4 fw-semibold shadow-sm"
+              style={{ height: '44px', borderRadius: '8px' }}
+              onClick={onClose}
+            >
+              닫기
+            </button>
+          </div>
+
         </div>
       </div>
     </div>

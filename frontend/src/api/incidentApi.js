@@ -14,3 +14,6 @@ export const createIncident = (request) =>
 
 export const updateIncidentStatus = (id, status, version) =>
   axiosInstance.put(`/api/incidents/${id}/status`, { status, version });
+
+export const getIncidentSeverityStats = () =>
+  axiosInstance.get('/api/incidents/stats/severity');

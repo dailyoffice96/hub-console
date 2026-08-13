@@ -42,6 +42,12 @@ public class InquiryController {
         return ResponseEntity.ok(comment);
     }
 
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @PathVariable Long commentId) {
+        inquiryService.deleteComment(id, commentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<InquiryResponse> updateStatus(
             @PathVariable Long id, @RequestBody StatusRequest request) {

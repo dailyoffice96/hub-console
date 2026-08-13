@@ -11,3 +11,6 @@ export const unlockAdmin = (id) =>
 
 export const deleteAdmin = (id) =>
     axiosInstance.delete(`/api/admins/${id}`);
+
+export const createAdmin = (data) =>
+    axiosInstance.post('/api/admins', data);

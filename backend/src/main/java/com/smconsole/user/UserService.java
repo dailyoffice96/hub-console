@@ -65,6 +65,9 @@ public class UserService {
         return toResponse(user);
     }
 
+    // 즉시 휴면 전환: 별도 유예 기간이나 "최근 미접속 N일" 같은 자동 판단 조건 없이,
+    // 관리자가 이 API를 호출하는 즉시 무조건 DORMANT로 바뀌는 수동 처리입니다.
+    // (이 서비스는 회원이 직접 로그인하는 구조가 아니라서 탈퇴(WITHDRAWN) 상태와의 충돌은 고려하지 않습니다.)
     @CacheEvict(value = "userStats", allEntries = true)
     public UserResponse dormant(Long id){
         User user = userRepository.findById(id)
@@ -72,6 +75,21 @@ public class UserService {
 
         user.setStatus(UserStatus.DORMANT);
         user.setDormantAt(LocalDate.now());
+
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
+    // 휴면 해제: 휴면(DORMANT) 상태를 다시 정상(ACTIVE)으로 되돌립니다.
+    // dormantAt은 "휴면으로 전환된 시점"이므로 해제하면서 초기화합니다.
+    @CacheEvict(value = "userStats", allEntries = true)
+    public UserResponse activate(Long id){
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        user.setStatus(UserStatus.ACTIVE);
+        user.setDormantAt(null);
+        user.setUpdatedAt(LocalDate.now());
 
         userRepository.save(user);
         return toResponse(user);

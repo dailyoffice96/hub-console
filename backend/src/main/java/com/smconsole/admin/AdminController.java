@@ -3,6 +3,7 @@ package com.smconsole.admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +40,10 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping
+    public ResponseEntity<AdminResponse> create(@RequestBody AdminCreateRequest request) {
+        AdminResponse admin = adminService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+    }
 
 }

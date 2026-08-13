@@ -51,13 +51,27 @@ function IncidentMonitoringPage() {
   useEffect(() => {
     fetchData();
 
-    const socket = new SockJS('http://localhost:9000/ws');
     const client = new Client({
-      webSocketFactory: () => socket,
+      // 재연결마다 새 SockJS 소켓을 만들어야 한다. 소켓 인스턴스를 밖에서 한 번만 만들어 캡처하면
+      // 최초 연결이 끊긴 뒤 stompjs가 재연결을 시도할 때마다 이미 닫힌 소켓을 재사용하게 되어
+      // reconnectDelay를 걸어도 실제로는 재연결이 안 된다.
+      webSocketFactory: () => new SockJS('http://localhost:9000/ws'),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
       onConnect: () => {
         client.subscribe('/topic/incidents', () => {
           fetchData();
         });
+      },
+      onWebSocketClose: () => {
+        console.warn('[incidents] WebSocket 연결이 끊어졌습니다. 재연결을 시도합니다.');
+      },
+      onStompError: (frame) => {
+        console.error('[incidents] STOMP 오류:', frame.headers?.message, frame.body);
+      },
+      onWebSocketError: (event) => {
+        console.error('[incidents] WebSocket 오류:', event);
       },
     });
     client.activate();

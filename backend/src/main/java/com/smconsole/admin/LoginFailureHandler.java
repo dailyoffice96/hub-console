@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //extends는 클래스용(이미 "완성된 동작"이 있는 걸 물려받을 때)
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler{
     private final AdminRepository adminRepository;
+    private final AdminSessionService adminSessionService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -32,7 +34,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler{
         String loginId = request.getParameter("loginId");
 
         AtomicInteger failCount = new AtomicInteger(0);
-        boolean locked = false;
+        AtomicBoolean locked = new AtomicBoolean(false);
 
         Optional<Admin> adminOpt = adminRepository.findByLoginId(loginId);
         if (adminOpt.isPresent()) {
@@ -40,15 +42,19 @@ public class LoginFailureHandler implements AuthenticationFailureHandler{
             admin.setLoginFailCount(admin.getLoginFailCount() + 1);
             failCount.set(admin.getLoginFailCount());
 
-            if (admin.getLoginFailCount() >= 5) {
+            if (admin.getLoginFailCount() >= 5 && !admin.isLocked()) {
                 admin.setLocked(true);
+                // 방금 이 실패로 막 잠긴 거라면, 다른 곳에 이미 로그인해서 남아있던 세션도 바로 끊는다.
+                adminSessionService.expireSessions(admin.getLoginId());
             }
             adminRepository.save(admin);
+            // 이번 시도로 잠겼든, 이전부터 이미 잠겨있었든 현재 잠김 상태를 그대로 응답에 반영한다.
+            locked.set(admin.isLocked());
         }
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"failCount\":" + failCount.get() + "}");
+        response.getWriter().write("{\"failCount\":" + failCount.get() + ",\"locked\":" + locked.get() + "}");
     }
 }
 

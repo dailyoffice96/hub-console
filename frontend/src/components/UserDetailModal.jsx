@@ -1,10 +1,22 @@
 ﻿import { useState } from 'react';
-import { updateUser, dormantUser } from "../api/usersApi"
+import { updateUser, dormantUser, activateUser } from "../api/usersApi"
 
 function UserDetailModal({ user, onClose, onUpdated }) {
+  // 조건 없이 호출 즉시 DORMANT로 바뀌는 수동 처리입니다.
   const handleDormant = async () => {
     try {
       await dormantUser(user.id);
+      onUpdated();
+      onClose();
+    } catch (error) {
+      alert(error.response?.data?.message || "처리에 실패했습니다.");
+    }
+  };
+
+  // 휴면 상태를 다시 정상(ACTIVE)으로 되돌립니다.
+  const handleActivate = async () => {
+    try {
+      await activateUser(user.id);
       onUpdated();
       onClose();
     } catch (error) {
@@ -74,7 +86,16 @@ function UserDetailModal({ user, onClose, onUpdated }) {
                 style={{ height: '44px', borderRadius: '8px' }}
                 onClick={handleDormant}
               >
-                휴면 처리
+                즉시 휴면 전환
+              </button>
+            )}
+            {user.status === 'DORMANT' && (
+              <button
+                className="btn btn-success px-4 fw-semibold shadow-sm"
+                style={{ height: '44px', borderRadius: '8px' }}
+                onClick={handleActivate}
+              >
+                휴면 해제
               </button>
             )}
             <button

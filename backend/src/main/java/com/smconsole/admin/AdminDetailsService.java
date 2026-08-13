@@ -29,6 +29,7 @@ public class AdminDetailsService implements UserDetailsService{
                 .password(admin.getPasswordHash())       // 암호화된 비밀번호
                 .authorities("ROLE_" + admin.getRole().name())     // 권한
                 .accountLocked(admin.isLocked())   // 계정 잠김
+                .disabled(admin.isDeleted())       // 삭제(soft delete)된 계정은 로그인 불가
                 .build();
     }
 }

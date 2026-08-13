@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAdmin, getAdminStats, unlockAdmin, deleteAdmin } from "../api/adminApi";
 import axiosInstance from '../api/axiosInstance';
 import SystemModal from '../components/SystemModal';
+import AdminCreateModal from '../components/AdminCreateModal';
 
 function AdminListPage() {
     const [admins, setAdmins] = useState([]);
@@ -12,6 +13,7 @@ function AdminListPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [stats, setStats] = useState({ totalCount: 0, lockedCount: 0, superAdminCount: 0, adminCount: 0, staffCount: 0 });
     const [showSystemModal, setShowSystemModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const fetchAdmins = () => {
         getAdmin({ name, role, page, size: 10 })
@@ -129,13 +131,22 @@ function AdminListPage() {
                             검색
                         </button>
                         {myRole === 'SUPER_ADMIN' && (
-                            <button
-                                className="btn btn-outline-danger px-4 fw-semibold ms-auto"
-                                style={{ height: '44px', borderRadius: '8px' }}
-                                onClick={() => setShowSystemModal(true)}
-                            >
-                                시스템 점검 설정
-                            </button>
+                            <div className="d-flex gap-2 ms-auto">
+                                <button
+                                    className="btn btn-primary px-4 fw-semibold"
+                                    style={{ height: '44px', borderRadius: '8px' }}
+                                    onClick={() => setShowCreateModal(true)}
+                                >
+                                    관리자 추가
+                                </button>
+                                <button
+                                    className="btn btn-outline-danger px-4 fw-semibold"
+                                    style={{ height: '44px', borderRadius: '8px' }}
+                                    onClick={() => setShowSystemModal(true)}
+                                >
+                                    시스템 점검 설정
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -224,6 +235,13 @@ function AdminListPage() {
 
             {showSystemModal && (
                 <SystemModal onClose={() => setShowSystemModal(false)} />
+            )}
+
+            {showCreateModal && (
+                <AdminCreateModal
+                    onClose={() => setShowCreateModal(false)}
+                    onCreated={() => { fetchAdmins(); fetchStats(); }}
+                />
             )}
         </div>
     );

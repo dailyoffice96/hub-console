@@ -4,14 +4,16 @@ package com.smconsole.ai;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.unbescape.xml.XmlEscapeType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class OpenAiService {
@@ -19,10 +21,23 @@ public class OpenAiService {
     @Value("${openai.api.key}")
     private String apikey;
 
+    //OpenAI 정해놓은 정확한 주소. 테스트에서 로컬 서버로 리다이렉트해 타임아웃을 실제로 재현할 수
+    //있도록 상수 대신 설정값으로 뺐다(기본값은 기존과 동일한 실제 OpenAI 주소).
+    @Value("${openai.api.url:https://api.openai.com/v1/chat/completions}")
+    private String apiUrl;
+
     //OpenAI 서버에 요청을 보낼 도구
-    private final RestTemplate restTemplate = new RestTemplate();
-    //OpenAI 정해놓은 정확한 주소
-    private static final String URL = "https://api.openai.com/v1/chat/completions";
+    //연결/응답 타임아웃을 안 걸어두면 OpenAI가 응답을 안 줄 때 이 스레드가 무한정 붙잡히고,
+    //호출하는 쪽(AuditLogService)은 @Transactional이라 그동안 DB 커넥션도 같이 물고 있게 된다.
+    //(SlackNotificationService에서 쓴 것과 같은 방식 - RestTemplateBuilder는 Boot 4.1엔 없다.)
+    private final RestTemplate restTemplate;
+
+    public OpenAiService() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000); // 3초
+        factory.setReadTimeout(15000);   // 15초 - AI 응답이라 Slack보다 여유를 둠
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     //"analyze"(분석)라는 이름의 메서드를 만들어 prompt(질문/요청 내용)를 파라미터로 받겠어요
     public String analyze(String prompt){
@@ -45,16 +60,52 @@ public class OpenAiService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         //이 완성된 편지(entity)를, 이 주소(URL)로 보내고, 답장을 Map 형태로 받아라
-        Map response = restTemplate.postForObject(URL, entity, Map.class);
+        Map<?, ?> response;
+        try {
+            response = restTemplate.postForObject(apiUrl, entity, Map.class);
+        } catch (ResourceAccessException e) {
+            // 연결 실패/타임아웃 - 일시적일 가능성이 높은 쪽
+            throw new AiAnalysisException(
+                    HttpStatus.SERVICE_UNAVAILABLE,
+                    "AI 분석 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.", e);
+        } catch (RestClientException e) {
+            // OpenAI가 4xx/5xx를 응답한 경우 등 - 업스트림이 응답은 했지만 실패로 응답한 쪽
+            throw new AiAnalysisException(
+                    HttpStatus.BAD_GATEWAY,
+                    "AI 분석 서비스 호출에 실패했습니다.", e);
+        }
 
-        //OpenAI가 돌려주는 응답("choices"(AI가 만든 답변 후보들)
-        List<Map> choices = (List<Map>) response.get("choices");
+        return extractContent(response);
+    }
 
-        //여러 답변 후보 중에서 첫 번째("0번째") 것
-        Map message = (Map) choices.get(0).get("message");
-        //진짜 텍스트 답변("content")만 최종적으로 꺼내서 돌려줌
-        return (String) message.get("content");
+    //OpenAI가 돌려주는 응답 구조({"choices":[{"message":{"content":"..."}}]})가 예상과 다르면
+    //(에러 응답, 빈 choices, 필드 누락 등) NPE/ClassCastException 대신 명확한 예외로 바꿔준다.
+    private String extractContent(Map<?, ?> response) {
+        if (response == null) {
+            throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스로부터 응답을 받지 못했습니다.");
+        }
 
+        Object choicesObj = response.get("choices");
+        if (!(choicesObj instanceof List<?> choices) || choices.isEmpty()) {
+            throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스 응답 형식이 올바르지 않습니다. (choices 없음)");
+        }
+
+        Object firstChoice = choices.get(0);
+        if (!(firstChoice instanceof Map<?, ?> choiceMap)) {
+            throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스 응답 형식이 올바르지 않습니다. (choice 형식 오류)");
+        }
+
+        Object messageObj = choiceMap.get("message");
+        if (!(messageObj instanceof Map<?, ?> message)) {
+            throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스 응답 형식이 올바르지 않습니다. (message 없음)");
+        }
+
+        Object content = message.get("content");
+        if (!(content instanceof String contentStr) || contentStr.isBlank()) {
+            throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스 응답에 내용이 없습니다.");
+        }
+
+        return contentStr;
     }
 
 }

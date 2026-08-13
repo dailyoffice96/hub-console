@@ -1,5 +1,6 @@
 package com.smconsole.incident;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,9 +48,13 @@ public class IncidentController {
         return ResponseEntity.ok(incident);
     }
 
+    // 인증 없이 열려있는 엔드포인트(SecurityConfig 참고) - X-Webhook-Secret 헤더로 호출자를 검증한다.
     @PostMapping("/webhook")
-    public ResponseEntity<IncidentResponse> createWebhook(@RequestBody WebhookIncidentRequest request){
-        IncidentResponse incident = incidentService.createWebhook(request);
+    public ResponseEntity<IncidentResponse> createWebhook(
+            @Valid @RequestBody WebhookIncidentRequest request,
+            @RequestHeader(value = "X-Webhook-Secret", required = false) String webhookSecret
+    ){
+        IncidentResponse incident = incidentService.createWebhook(request, webhookSecret);
         return ResponseEntity.ok(incident);
     }
 
@@ -60,4 +65,3 @@ public class IncidentController {
         return ResponseEntity.ok(incident);
     }
 }
-

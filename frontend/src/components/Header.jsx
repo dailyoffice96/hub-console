@@ -4,12 +4,14 @@ import {useState, useEffect} from "react";
 import axiosInstance from '../api/axiosInstance';
 import { LuBell } from "react-icons/lu";
 import { getIncidents } from "../api/incidentApi";
+import ChangePasswordModal from './ChangePasswordModal';
 
 function Header() {
     const location = useLocation();
     const navigate = useNavigate();
     const [myInfo, setMyInfo] = useState("");
     const [urgentCount, setUrgentCount] = useState(0);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     const pageTitles = {
         '/users': '회원관리',
@@ -73,8 +75,13 @@ function Header() {
              )}
          </div>
          <span className="me-3">{myInfo?.name} · {myInfo?.role}</span>
+         <button className="btn btn-outline-secondary btn-sm me-2" onClick={() => setShowPasswordModal(true)}>비밀번호 변경</button>
          <button className="btn btn-outline-secondary btn-sm" onClick={handleLogout}>로그아웃</button>
        </div>
+
+       {showPasswordModal && (
+           <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />
+       )}
     </div>
     )
 }

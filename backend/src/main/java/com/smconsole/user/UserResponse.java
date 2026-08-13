@@ -11,7 +11,7 @@ public record UserResponse (
         String maskedEmail,
         UserStatus status,
         LocalDate createdAt,
-        LocalDate withdrawnAt,
+        LocalDate dormantAt,
         LocalDate updatedAt
 ){}
 

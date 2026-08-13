@@ -25,6 +25,8 @@ function LoginPage() {
     useEffect(() => {
         getSystemSetting().then(res => {
             setSystemSetting(res.data);
+        }).catch(() => {
+            // 점검 배너는 로그인 자체에 필수는 아니므로, 조회가 실패해도 로그인 화면은 그대로 보여준다.
         });
     }, []);
 
@@ -53,8 +55,8 @@ function LoginPage() {
         }
         catch (error) {
             if (error.response?.status === 401) {
-                const failCount = error.response.data?.failCount;
-                if (failCount >= 5) {
+                const { failCount, locked } = error.response.data || {};
+                if (locked) {
                     setError("로그인 5회 실패로 계정이 잠겼습니다. 관리자에게 문의하세요.");
                 } else if (failCount) {
                     setError(`아이디 또는 비밀번호가 틀렸습니다.\n(${failCount}회 실패, 5회 실패 시 계정이 잠깁니다)`);

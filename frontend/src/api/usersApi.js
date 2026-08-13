@@ -12,9 +12,13 @@ export const getUserDetail = (id) =>
 export const updateUser = (id, data) =>
   axiosInstance.put(`/api/users/${id}`, data);
 
-//회원의 휴면계정으로 전환
+//회원을 즉시 휴면 상태로 전환 (조건 없이 즉시 처리됨)
 export const dormantUser = (id) =>
   axiosInstance.put(`/api/users/${id}/dormant`);
+
+//휴면 상태를 다시 정상(ACTIVE)으로 되돌림
+export const activateUser = (id) =>
+  axiosInstance.put(`/api/users/${id}/activate`);
 
 //회원 상태 통계
 export const getUserStats = () =>

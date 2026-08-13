@@ -1,0 +1,4 @@
+# 루트에서 만들어지는 IDE/에디터 메타데이터 (backend/, frontend/ 하위는 각자 .gitignore가 따로 처리함)
+.idea/
+.vscode/
+*.iml

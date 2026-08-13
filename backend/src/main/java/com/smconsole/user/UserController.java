@@ -49,9 +49,17 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    // 즉시 휴면 전환: 자동 판단 조건 없이, 호출 즉시 해당 회원을 DORMANT로 바꾸는 수동 처리입니다.
     @PutMapping("/{id}/dormant")
     public ResponseEntity<UserResponse> dormant(@PathVariable Long id) {
         UserResponse user = userService.dormant(id);
+        return ResponseEntity.ok(user);
+    }
+
+    // 휴면 해제: 휴면(DORMANT) 상태였던 회원을 다시 정상(ACTIVE)으로 되돌립니다.
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<UserResponse> activate(@PathVariable Long id) {
+        UserResponse user = userService.activate(id);
         return ResponseEntity.ok(user);
     }
 

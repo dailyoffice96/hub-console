@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -37,14 +36,15 @@ public class AuditLogController {
     }
 
     @GetMapping("/excel")
-    public ResponseEntity<byte[]> download() throws IOException {
+    public ResponseEntity<byte[]> download() {
         byte[] excelData = auditLogExcelService.exportToExcel();
 
         String filename = "감사로그_목록.xlsx";
         String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", encodedFilename);
 
         return new ResponseEntity<>(excelData, headers, HttpStatus.OK);

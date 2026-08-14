@@ -1,6 +1,7 @@
 package com.smconsole.notification;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,7 +15,16 @@ public class SlackNotificationService {
     private  String webhookUrl;
 
     //스프링에서 다른 서버(여기선 Slack)로 HTTP 요청을 보낼 때 쓰는 도구
-    private final RestTemplate restTemplate = new RestTemplate();
+    //연결/응답 타임아웃을 안 걸어두면 Slack이 응답을 안 줄 때 이 스레드가 무한정 붙잡히고,
+    //호출하는 쪽(IncidentService)은 @Transactional이라 그동안 DB 트랜잭션도 같이 열려있게 된다.
+    private final RestTemplate restTemplate;
+
+    public SlackNotificationService() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000); // 3초
+        factory.setReadTimeout(5000);    // 5초
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     //payload란 "실어 보낼 짐(데이터)"이라는 뜻, Map(key-value)
     public void notification(String message){

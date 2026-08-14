@@ -86,6 +86,13 @@ public class SecurityConfig {
                             // 문의 담당자 배정은 삭제/잠금 같은 계정 관리 액션만큼 민감하진 않아서 SUPER_ADMIN 전용까진
                             // 아니고, STAFF는 제외하고 SUPER_ADMIN/ADMIN까지 허용 (조회/댓글은 STAFF도 그대로 가능)
                             .requestMatchers(HttpMethod.PUT, "/api/inquiries/*/assign").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                            // 감사로그는 "누가 어떤 관리자 계정을 만들고/지웠는지"까지 그대로 노출하는데,
+                            // 정작 그 계정 관리 액션 자체는 SUPER_ADMIN 전용이다. STAFF가 조회/엑셀 다운로드/AI
+                            // 분석까지 다 할 수 있으면 그 비대칭이 의미가 없어지므로 SUPER_ADMIN/ADMIN까지만 허용.
+                            .requestMatchers("/api/auditLogs/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                            // 일일 통계(신규가입자/신규문의/신규장애 집계)도 운영 현황 데이터라 위 감사로그와
+                            // 같은 기준으로 STAFF는 제외한다.
+                            .requestMatchers("/api/dailyStats/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
                             .anyRequest().authenticated()   // 조회/수정/마스킹은 STAFF도 되니 그냥 로그인만 요구
 
                     )

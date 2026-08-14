@@ -1,12 +1,7 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { getUser, getUserStats, downloadUser, uploadUser } from "../api/usersApi";
+import { getUser, getUserDetail, getUserStats, downloadUser, uploadUser } from "../api/usersApi";
 import UserDetailModal from '../components/UserDetailModal';
-
-const statusColors = {
-  ACTIVE: { bg: '#d1e7dd', text: '#0f5132' },
-  DORMANT: { bg: '#fff3cd', text: '#664d03' },
-  WITHDRAWN: { bg: '#f8d7da', text: '#842029' }
-};
+import USER_STATUS_COLORS from '../constants/statusColors'
 
 function UserListPage() {
     const [users, setUsers] = useState([]);
@@ -77,7 +72,6 @@ function UserListPage() {
 
     return (
         <div className="container-fluid px-4 py-3">
-            {/* 상단 통계 카드 (실무형 플랫 화이트 디자인) */}
             <div className="row g-4 mb-4">
                 <div className="col-md-4">
                     <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -114,7 +108,7 @@ function UserListPage() {
                 </div>
             </div>
 
-            {/* 테이블 및 검색 박스 (mx-2를 주어 바깥쪽 여백 확보) */}
+            {/* 테이블 및 검색 박스*/}
             <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
                 <div className="p-4 border-bottom bg-light bg-opacity-25">
                     <div className="d-flex flex-wrap gap-2 align-items-center">
@@ -153,8 +147,17 @@ function UserListPage() {
                     </div>
                 </div>
 
-                <div className="table-responsive mb-0">
-                    <table className="table table-hover align-middle mb-0">
+                <div className="table-responsive data-table-wrap mb-0">
+                    <table className="table table-hover align-middle mb-0 data-table">
+                        <colgroup>
+                            <col style={{ width: '6%' }} />
+                            <col style={{ width: '12%' }} />
+                            <col style={{ width: '16%' }} />
+                            <col style={{ width: '14%' }} />
+                            <col style={{ width: '24%' }} />
+                            <col style={{ width: '12%' }} />
+                            <col style={{ width: '16%' }} />
+                        </colgroup>
                         <thead className="table-light text-secondary small text-uppercase">
                             <tr>
                                 <th className="py-3 ps-4">번호</th>
@@ -171,7 +174,7 @@ function UserListPage() {
                                 users.map((user, index) => (
                                     <tr
                                         key={user.id}
-                                        onClick={() => setSelectedUser(user)}
+                                        onClick={() => getUserDetail(user.id).then(res => setSelectedUser(res.data))}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <td className="ps-4 fw-medium text-muted">{page * 10 + index + 1}</td>
@@ -183,8 +186,8 @@ function UserListPage() {
                                             <span
                                                 className="badge px-2 py-1 border"
                                                 style={{
-                                                    backgroundColor: statusColors[user.status]?.bg,
-                                                    color: statusColors[user.status]?.text,
+                                                    backgroundColor: USER_STATUS_COLORS[user.status]?.bg,
+                                                    color: USER_STATUS_COLORS[user.status]?.text,
                                                     borderColor: 'transparent'
                                                 }}
                                             >

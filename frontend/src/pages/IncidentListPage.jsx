@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect } from 'react';
-import StatCard from '../components/StatCard';
 import { getIncidents, getIncidentStats } from '../api/incidentApi';
 import IncidentCreateModal from '../components/IncidentCreateModal';
 import IncidentDetailModal from '../components/IncidentDetailModal';
@@ -51,7 +50,6 @@ function IncidentListPage() {
 
   return (
     <div className="container-fluid px-4 py-3">
-      {/* 상단 통계 카드 (실무형 플랫 화이트 디자인) */}
       <div className="row g-4 mb-4">
         <div className="col-md-4">
           <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -88,7 +86,6 @@ function IncidentListPage() {
         </div>
       </div>
 
-      {/* 검색 및 테이블 통합 박스 (mx-2로 바깥쪽 여백 확보) */}
       <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
         <div className="p-4 border-bottom bg-light bg-opacity-25">
           <div className="d-flex flex-wrap gap-2 align-items-center">
@@ -139,8 +136,17 @@ function IncidentListPage() {
           </div>
         </div>
 
-        <div className="table-responsive mb-0">
-          <table className="table table-hover align-middle mb-0">
+        <div className="table-responsive data-table-wrap mb-0">
+          <table className="table table-hover align-middle mb-0 data-table">
+            <colgroup>
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '28%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '15%' }} />
+              <col style={{ width: '15%' }} />
+            </colgroup>
             <thead className="table-light text-secondary small text-uppercase">
               <tr>
                 <th className="py-3 ps-4">번호</th>

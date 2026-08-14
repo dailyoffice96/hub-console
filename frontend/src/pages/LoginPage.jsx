@@ -75,9 +75,9 @@ function LoginPage() {
                 <div className="logo">⬡ Ops<span>Hub</span></div>
                  <h2 className="brand-title">{brandSlides[imgIndex].title}</h2>
                 <hr/>
-                 <p className="mb-3"  style={{ fontSize: '24px' }}>{brandSlides[imgIndex].desc}</p>
-                <p className="mt-3">
-                    SM Console 운영팀
+                 <p className="brand-desc mb-3">{brandSlides[imgIndex].desc}</p>
+                <p className="mt-3" style={{ fontSize: '20px' }}>
+                    Console 시스템 운영팀
                     <br/>
                     support@smconsole.io
                 </p>

@@ -124,9 +124,9 @@ function IncidentMonitoringPage() {
   return (
     <div className="container-fluid px-4 py-3">
       <div className="row g-4 mx-1">
-        {/* 왼쪽: 심각도 현황 + 상태별 처리 현황 */}
+        {/* 심각도 현황 + 상태별 처리 현황 */}
         <div className="col-md-5 d-flex flex-column gap-4 px-0">
-          {/* 1. 심각도 현황 카드 */}
+          {/* 심각도 현황*/}
           <div className="card border shadow-sm p-4 rounded-4 bg-white">
             <h6 className="fw-bold mb-3 text-dark">심각도 현황</h6>
             <div className="d-flex align-items-center justify-content-between">
@@ -160,7 +160,7 @@ function IncidentMonitoringPage() {
             </div>
           </div>
 
-          {/* 2. 상태별 처리 현황 카드 */}
+          {/* 상태별 처리 현황 */}
           <div className="card border shadow-sm p-4 rounded-4 bg-white flex-grow-1 d-flex flex-column justify-content-between">
             <h6 className="fw-bold mb-3 text-dark">상태별 처리 현황</h6>
 
@@ -183,7 +183,7 @@ function IncidentMonitoringPage() {
           </div>
         </div>
 
-        {/* 오른쪽: 실시간 장애 목록 (ms-4로 왼쪽 마진 추가) */}
+        {/* 실시간 장애 목록 */}
         <div className="col-md px-0 ms-md-4">
           <div className="card border shadow-sm p-4 rounded-4 bg-white h-100">
             <div className="d-flex justify-content-between align-items-center mb-4">

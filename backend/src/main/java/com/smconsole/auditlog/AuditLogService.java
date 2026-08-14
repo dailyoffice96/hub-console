@@ -1,6 +1,6 @@
 package com.smconsole.auditlog;
 
-import com.smconsole.admin.Admin;
+import com.smconsole.admin.entity.Admin;
 import com.smconsole.ai.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -6,7 +6,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// 서버만 켜면 알아서 외부에서 유저를 긁어와 DB에 쏙 집어넣어 줌
 // @Configuration + @Bean ==> 관리 사무소에 지시서 붙여두기(서버 켜지면 이거 해 쪽지 전달)
 // @Component ==> 직원을 만들어서 배치고 서버 켜지면 일해!
 @Configuration
@@ -20,7 +19,6 @@ public class ExternalUserInitializer implements CommandLineRunner{
 
     // 서버가 켜지는 찰나에 딱 한 번 자동으로 실행됨!
     @Override
-    //서버가 켜질 때 자동으로 실행되는 메서드
     public void run(String... args) throws Exception {
         //서버가 켜지는 그 찰나에, 중괄호 { } 안에 있는 행동들을 실행
         // 예를 들어 서버 켜질 때 외부 유저 5명을 자동으로 긁어와서 DB에 저장!

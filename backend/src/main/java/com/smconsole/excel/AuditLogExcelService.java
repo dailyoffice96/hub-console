@@ -61,7 +61,7 @@ public class AuditLogExcelService {
             }
 
             //ByteArrayOutputStream으로 변환
-            //자바 메모리 안에 있는 객체일 뿐, 아직 "파일"이 아니에요. 이걸 실제로 브라우저에 전송하려면 바이트(byte) 형태로 바꿔야 함
+            //브라우저에 전송하려면 바이트(byte) 형태로 변경
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
             return out.toByteArray();

@@ -7,7 +7,7 @@ import IncidentListPage from '../pages/IncidentListPage';
 import IncidentMonitoringPage from '../pages/IncidentMonitoringPage';
 import AuditLogPage from '../pages/AuditLogPage';
 import AuditLogAnalyzePage from '../pages/AuditLogAnalyzePage';
-import Layout from '../components/Layout';
+import Layout from '../components/Layout/Layout';
 import PrivateRoute from './PrivateRoute';
 
 function AppRoutes() {

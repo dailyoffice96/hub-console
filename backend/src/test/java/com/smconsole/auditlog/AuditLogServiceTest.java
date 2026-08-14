@@ -1,6 +1,6 @@
 package com.smconsole.auditlog;
 
-import com.smconsole.admin.Admin;
+import com.smconsole.admin.entity.Admin;
 import com.smconsole.ai.AiAnalysisException;
 import com.smconsole.ai.OpenAiService;
 import org.junit.jupiter.api.Test;

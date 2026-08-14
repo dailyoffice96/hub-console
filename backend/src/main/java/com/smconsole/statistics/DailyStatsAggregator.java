@@ -1,7 +1,7 @@
 package com.smconsole.statistics;
 
-import com.smconsole.incident.IncidentRepository;
-import com.smconsole.inquiry.InquiryRepository;
+import com.smconsole.incident.repository.IncidentRepository;
+import com.smconsole.inquiry.repository.InquiryRepository;
 import com.smconsole.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

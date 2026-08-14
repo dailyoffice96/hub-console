@@ -1,6 +1,6 @@
 package com.smconsole.auditlog;
 
-import com.smconsole.admin.Admin;
+import com.smconsole.admin.entity.Admin;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

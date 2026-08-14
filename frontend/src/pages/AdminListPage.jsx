@@ -64,7 +64,6 @@ function AdminListPage() {
 
     return (
         <div className="container-fluid px-4 py-3">
-            {/* 상단 통계 카드 (실무형 플랫 화이트 디자인) */}
             <div className="row g-4 mb-4">
                 <div className="col-md-4">
                     <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -101,7 +100,6 @@ function AdminListPage() {
                 </div>
             </div>
 
-            {/* 테이블 및 검색 박스 (mx-3을 주어 바깥쪽 여백 확보) */}
             <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
                 <div className="p-4 border-bottom bg-light bg-opacity-25">
                     <div className="d-flex flex-wrap gap-2 align-items-center">
@@ -151,8 +149,17 @@ function AdminListPage() {
                     </div>
                 </div>
 
-                <div className="table-responsive mb-0">
-                    <table className="table table-hover align-middle mb-0">
+                <div className="table-responsive data-table-wrap mb-0">
+                    <table className="table table-hover align-middle mb-0 data-table">
+                        <colgroup>
+                            <col style={{ width: '6%' }} />
+                            <col style={{ width: '14%' }} />
+                            <col style={{ width: '18%' }} />
+                            <col style={{ width: '14%' }} />
+                            <col style={{ width: '16%' }} />
+                            <col style={{ width: '16%' }} />
+                            <col style={{ width: '16%' }} />
+                        </colgroup>
                         <thead className="table-light text-secondary small text-uppercase">
                             <tr>
                                 <th className="py-3 ps-4">번호</th>

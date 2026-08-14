@@ -1,8 +1,8 @@
 package com.smconsole.config;
 
 
-import com.smconsole.admin.LoginFailureHandler;
-import com.smconsole.admin.LoginSuccessHandler;
+import com.smconsole.admin.handler.LoginFailureHandler;
+import com.smconsole.admin.handler.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,14 +17,11 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import java.util.List;
 
-//@Configuration --> Spring에게 "이 클래스 안에는 @Bean이라고 표시된 메서드들이 있을 거고, 그것들을 미리 실행해서 부품(객체)들을 만들어놔라
 @Configuration
-@EnableWebSecurity // Spring Security의 웹 보안 기능
-//@RequiredArgsConstructor --> "final 필드들을 자동으로 채우는 생성자를 만들어달라
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -33,11 +29,9 @@ public class SecurityConfig {
     private final LoginFailureHandler loginFailureHandler;
     private final ApiAuthenticationEntryPoint apiAuthenticationEntryPoint;
     private final AdminSessionExpiredStrategy adminSessionExpiredStrategy;
-    // SessionRegistryConfig에 별도로 정의됨 (여기 두면 SecurityConfig -> LoginFailureHandler ->
-    // AdminSessionService -> SessionRegistry(SecurityConfig의 @Bean) 순환 참조가 생긴다)
+
     private final SessionRegistry sessionRegistry;
 
-    // bcrypt라는 암호화 알고리즘
         @Bean
         public PasswordEncoder passwordEncoder(){
             PasswordEncoder password = new BCryptPasswordEncoder();
@@ -45,8 +39,6 @@ public class SecurityConfig {
         }
 
 
-    // 2번: SecurityFilterChain을 Bean으로 등록
-    // 힌트: 매개변수로 HttpSecurity http를 받고, throws Exception 필요
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http

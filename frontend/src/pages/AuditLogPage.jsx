@@ -19,7 +19,7 @@ function AuditLogPage() {
     const [dailyStats, setDailyStats] = useState([]);
 
     const fetchLogs = () => {
-      getAuditLogs({ adminName, action, targetType, page, size: 15 })
+      getAuditLogs({ adminName, action, targetType, page, size: 8 })
         .then(res => {
             setLogs(res.data.content || []);
             setTotalPages(res.data.totalPages);
@@ -78,7 +78,7 @@ function AuditLogPage() {
 
   return (
     <div className="container-fluid px-4 py-3">
-      {/* 상단 안내 섹션 */}
+      {/* 상단 안내 */}
       <div className="row mx-2 mb-4">
         <div className="col-12 px-0">
           <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -88,7 +88,7 @@ function AuditLogPage() {
         </div>
       </div>
 
-      {/* 일별 통계 (신규 가입자/문의/장애) - DailyStatsService 스케줄러가 매일 자정에 집계한 값 */}
+      {/* 일별 통계 (신규 가입자/문의/장애) 스케줄러가 매일 자정에 집계*/}
       <div className="row mx-2 mb-4">
         <div className="col-12 px-0">
           <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -125,8 +125,14 @@ function AuditLogPage() {
                 </div>
 
                 {recentStats.length > 1 && (
-                  <div className="table-responsive mt-3">
-                    <table className="table table-sm mb-0">
+                  <div className="table-responsive data-table-wrap mt-3">
+                    <table className="table table-sm mb-0 data-table">
+                      <colgroup>
+                        <col style={{ width: '28%' }} />
+                        <col style={{ width: '24%' }} />
+                        <col style={{ width: '24%' }} />
+                        <col style={{ width: '24%' }} />
+                      </colgroup>
                       <thead>
                         <tr className="text-muted small text-uppercase">
                           <th className="fw-semibold">날짜</th>
@@ -154,7 +160,7 @@ function AuditLogPage() {
         </div>
       </div>
 
-      {/* 검색 및 테이블 통합 박스 (mx-2로 바깥쪽 여백 확보) */}
+      {/* 검색 및 테이블 */}
       <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
         <div className="p-4 border-bottom bg-light bg-opacity-25">
           <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -208,8 +214,16 @@ function AuditLogPage() {
           </div>
         </div>
 
-        <div className="table-responsive mb-0">
-          <table className="table table-hover align-middle mb-0">
+        <div className="table-responsive data-table-wrap mb-0">
+          <table className="table table-hover align-middle mb-0 data-table">
+            <colgroup>
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '14%' }} />
+              <col style={{ width: '16%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '36%' }} />
+              <col style={{ width: '16%' }} />
+            </colgroup>
             <thead className="table-light text-secondary small text-uppercase">
               <tr>
                 <th className="py-3 ps-4">번호</th>
@@ -224,7 +238,7 @@ function AuditLogPage() {
               {logs.length > 0 ? (
                 logs.map((log, index) => (
                   <tr key={log.id}>
-                    <td className="ps-4 fw-medium text-muted">{page * 15 + index + 1}</td>
+                    <td className="ps-4 fw-medium text-muted">{page * 8 + index + 1}</td>
                     <td className="fw-semibold text-dark">{log.admin || '-'}</td>
                     <td>
                       <span className="badge bg-light text-dark border px-2 py-1">
@@ -271,7 +285,6 @@ function AuditLogPage() {
   );
 }
 
-// deltaGoodDirection: 'up'(늘어나는 게 좋음, 예: 가입자) | 'down'(줄어드는 게 좋음, 예: 장애) | null(중립, 예: 문의)
 function StatTile({ label, value, delta, deltaGoodDirection }) {
   let deltaColorClass = 'text-muted';
   if (delta !== null && delta !== 0 && deltaGoodDirection) {

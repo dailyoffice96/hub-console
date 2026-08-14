@@ -1,7 +1,8 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
-/*
-@import url('https://cdn.jsdelivr.net/gh/webfontworld/paperlogy/paperlogy.css');
-*/
+/* 원래 있던 webfontworld/paperlogy 주소는 그 저장소 자체가 존재하지 않아(404) 항상
+   실패하고 있었다 - 그래서 아예 주석 처리돼서 꺼져 있었던 것으로 보인다.
+   실제 Paperlogy 웹폰트를 배포하는 fonts-archive/Paperlogy로 바꿔서 켰다. */
+@import url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy.css');
 
 body {
   font-family: 'Pretendard', sans-serif;
@@ -11,4 +12,36 @@ body {
 h1, h2, h3, .fw-bold {
   font-family: 'Paperlogy', sans-serif;
   font-weight: 700;
+}
+
+/* body에 준 font-family는 보통 상속되지만, Bootstrap이 버튼/인풋/셀렉트에
+   font-family를 CSS 변수(--bs-btn-font-family 등)로 따로 관리하고 있어서
+   브라우저/버전에 따라 상속이 애매해질 수 있다. 검색 버튼·인풋·셀렉트가 body 폰트를
+   안 받는 것처럼 보이는 게 이것 때문이라, 명시적으로 상속받도록 고정해 둔다. */
+.btn, .form-control, .form-select {
+  font-family: inherit;
+}
+
+/* 목록 테이블 공통 스타일. table-layout:fixed로 열 폭을 <colgroup>에 고정시켜서,
+   페이지를 넘길 때 셀 내용 길이에 따라 열 너비가 재계산되며 흔들리는 현상을 막는다.
+   폭을 넘는 텍스트는 말줄임(...) 처리한다. */
+.data-table {
+  table-layout: fixed;
+}
+
+.data-table td,
+.data-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 열 폭은 이미 colgroup으로 고정하고 넘치는 글자는 말줄임으로 처리하므로, 가로 스크롤은
+   애초에 필요 없다. Bootstrap의 .table-responsive가 기본으로 넣는 overflow-x:auto를 꺼서,
+   내용이 많은 페이지에서만 스크롤바가 생겼다 없어졌다 하며(스크롤바 너비만큼 표시 영역이
+   줄었다 늘었다 해서) 열 너비가 페이지마다 미세하게 다시 흔들리는 걸 막는다.
+   (:has()는 구버전 브라우저에서 지원이 불안정해서, table-responsive 쪽에 클래스를
+   직접 붙이는 방식으로 바꿨다.) */
+.data-table-wrap {
+  overflow-x: hidden !important;
 }

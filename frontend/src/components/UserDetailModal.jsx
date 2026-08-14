@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { updateUser, dormantUser, activateUser } from "../api/usersApi"
+import USER_STATUS_COLORS from '../constants/statusColors'
 
 function UserDetailModal({ user, onClose, onUpdated }) {
   // 조건 없이 호출 즉시 DORMANT로 바뀌는 수동 처리입니다.
@@ -24,12 +25,6 @@ function UserDetailModal({ user, onClose, onUpdated }) {
     }
   };
 
-  const statusColors = {
-    ACTIVE: { bg: '#d1e7dd', text: '#0f5132' },
-    DORMANT: { bg: '#fff3cd', text: '#664d03' },
-    WITHDRAWN: { bg: '#f8d7da', text: '#842029' },
-  };
-
   const statusLabels = {
     ACTIVE: '활성',
     DORMANT: '휴면',
@@ -43,12 +38,12 @@ function UserDetailModal({ user, onClose, onUpdated }) {
 
           <div className="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
             <div className="d-flex align-items-center gap-2">
-              <h5 className="fw-bold text-dark mb-0">{user.maskedName}님 상세 정보</h5>
+              <h5 className="fw-bold text-dark mb-0">{user.name}님 상세 정보</h5>
               <span
                 className="badge px-2 py-1 border"
                 style={{
-                  backgroundColor: statusColors[user.status]?.bg || '#f1f1f1',
-                  color: statusColors[user.status]?.text || '#333',
+                  backgroundColor: USER_STATUS_COLORS[user.status]?.bg || '#f1f1f1',
+                  color: USER_STATUS_COLORS[user.status]?.text || '#333',
                   borderColor: 'transparent'
                 }}
               >

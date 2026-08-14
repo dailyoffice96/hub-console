@@ -26,7 +26,6 @@ public class SlackNotificationService {
         this.restTemplate = new RestTemplate(factory);
     }
 
-    //payload란 "실어 보낼 짐(데이터)"이라는 뜻, Map(key-value)
     public void notification(String message){
         Map<String, String> payload = new HashMap<>();
         payload.put("text", message);

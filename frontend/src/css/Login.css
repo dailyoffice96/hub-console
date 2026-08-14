@@ -15,11 +15,13 @@
     z-index: 2;
     color: white;
     padding: 0 80px;
-    max-width: 600px;
+    /* 폰트가 화면 폭에 비례해 커지는데 이 박스 폭은 600px로 고정돼 있으면,
+       커진 글자가 못 들어가서 줄바꿈이 생긴다. 폰트와 같이 늘어나도록 잡는다. */
+    max-width: clamp(600px, 34vw, 820px);
 }
 
 .logo {
-    font-size: 28px;
+    font-size: clamp(28px, 2.2vw, 40px);
     font-weight: 600;
 }
 
@@ -29,11 +31,15 @@
 }
 
 .brand-title {
-    font-size: 40px;
+    font-size: clamp(40px, 4vw, 64px);
     font-weight: 900;
     line-height: 1.2;
     margin-top: 30px;
     margin-bottom: 16px;
+}
+
+.brand-desc {
+    font-size: clamp(24px, 1.8vw, 36px);
 }
 
 .login-card-wrapper {
@@ -44,28 +50,39 @@
 }
 
 .login-box {
-    width: 380px;
+    width: clamp(380px, 30vw, 480px);
     background: white;
     border-radius: 20px;
+    /* 패딩까지 화면 폭에 비례해 키우면(Bootstrap이 box-sizing:border-box를 쓰기 때문에)
+       width가 아직 안 늘어난 구간에서 패딩만 먼저 커져서 안쪽 여백을 먹어버리고,
+       그 결과 폼 영역이 오히려 좁아 보이는 역효과가 났다. 패딩은 고정하고, 세로 방향
+       확대는 아래 인풋/버튼/글자 크기 쪽에서만 담당한다. */
     padding: 40px 32px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.15);
 }
 
-.login-box .input-group-text {
-    background: white;
-    border-right: none;
+.login-box h2 {
+    font-size: clamp(24px, 1.8vw, 32px);
+}
+
+.login-box .text-secondary {
+    font-size: clamp(14px, 1vw, 18px);
+}
+
+.login-box .form-label {
+    font-size: clamp(14px, 1vw, 18px);
 }
 
 .login-box .form-control {
-    border-left: none;
-    height: 52px;
+    height: clamp(52px, 3.6vw, 64px);
+    font-size: clamp(14px, 1vw, 18px);
 }
 
 .login-btn {
-    height: 52px;
+    height: clamp(52px, 3.6vw, 64px);
     background: #062e68;
     color: white;
-    font-size: 20px;
+    font-size: clamp(20px, 1.4vw, 26px);
     font-weight: 600;
     border-radius: 8px;
 }

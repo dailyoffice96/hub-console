@@ -38,10 +38,10 @@ public class UserService {
         return users.map(this::toResponse);
     }
 
-    public UserResponse getUser(Long id) {
+    public UserDetailResponse getUser(Long id) {
         User user = userRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-        return toResponse(user);
+        return toDetailResponse(user);
     }
 
     @Cacheable(value = "userStats")
@@ -52,13 +52,24 @@ public class UserService {
         return  new  UserStatsResponse(active, dormant, withdrawn);
     }
 
-    public UserResponse update(Long id, UserResponse dto){
+    // 부분 수정: null/빈 값인 필드는 기존 값을 그대로 유지한다.
+    // UserResponse(마스킹된 값)가 아니라 UserUpdateRequest(원본 값)를 받는 이유는
+    // toResponse()가 응답에 마스킹된 이름/전화번호/이메일만 담아서 돌려주는데, 그걸 그대로
+    // 수정 요청에 재사용하면 화면에 표시된 "홍*동" 같은 마스킹 값이 그대로 DB 원본을
+    // 덮어써버리기 때문이다.
+    public UserResponse update(Long id, UserUpdateRequest request){
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        user.setName(dto.maskedName());
-        user.setPhone(dto.maskedPhone());
-        user.setEmail(dto.maskedEmail());
+        if (request.name() != null && !request.name().isBlank()) {
+            user.setName(request.name());
+        }
+        if (request.phone() != null && !request.phone().isBlank()) {
+            user.setPhone(request.phone());
+        }
+        if (request.email() != null && !request.email().isBlank()) {
+            user.setEmail(request.email());
+        }
         user.setUpdatedAt(LocalDate.now());
 
         userRepository.save(user);
@@ -110,9 +121,21 @@ public class UserService {
         );
     }
 
-    //"*".repeat(id.length() - 3) --> 별표(*)만 여러 개 (예: "**")
-    //id.charAt(id.length() - 1) --> 원본 글자 중 마지막 것 딱 하나 (예: "1")
-    // substring은 "문자열의 일부분을 잘라내서 가져오는" 메서드
+    // 상세 조회 전용: 목록/검색용 toResponse()와 달리 마스킹 안 된 실명(name)을 같이 담는다.
+    private UserDetailResponse toDetailResponse(User user) {
+        return new UserDetailResponse(
+                user.getId(),
+                user.getLoginId(),
+                maskName(user.getName()),
+                user.getName(),
+                maskPhone(user.getPhone()),
+                maskEmail(user.getEmail()),
+                user.getStatus(),
+                user.getCreatedAt(),
+                user.getDormantAt(),
+                user.getUpdatedAt()
+        );
+    }
 
     private String maskName(String name){
         if (name == null || name.length() <= 1) return name;

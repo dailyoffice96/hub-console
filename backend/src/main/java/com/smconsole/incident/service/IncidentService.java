@@ -52,13 +52,11 @@ public class IncidentService {
     private final AdminRepository adminRepository;
     private final AuditLogService auditLogService;
     private final SlackNotificationService slackNotificationService;
-    // 라디오 방송을 실제로 내보내는 도구
     private final SimpMessagingTemplate messagingTemplate;
 
     @Value("${incident.webhook.secret:}")
     private String webhookSecret;
 
-    // 1. 목록조회
     public Page<IncidentResponse> getIncident(
             String reporterName, IncidentStatus status, IncidentSeverity severity, Pageable pageable) {
         Page<Incident> incidents;
@@ -76,7 +74,6 @@ public class IncidentService {
         return incidents.map(this::toResponse);
     }
 
-    // 2. 개별조회 (이력 포함)
     public IncidentDetailResponse getDetail(Long id) {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장애사항입니다."));
@@ -99,7 +96,6 @@ public class IncidentService {
         );
     }
 
-    // 3. 통계
     @Cacheable(value = "incidentStats")
     public IncidentStatsResponse getStats() {
         long received = incidentRepository.countByStatus(IncidentStatus.RECEIVED);
@@ -116,7 +112,6 @@ public class IncidentService {
         return new IncidentSeverityResponse(critical, high, medium, low);
     }
 
-    // 4. 등록
     @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse createIncident(IncidentCreateRequest request) {
         Incident incident = new Incident();
@@ -130,7 +125,6 @@ public class IncidentService {
 
         incidentRepository.save(incident);
 
-        //방송 장비(실제 메시지를 보낼 수 있는)/ 변환해서 보내라/보낼 주소/보낼 내용물
         messagingTemplate.convertAndSend("/topic/incidents", toResponse(incident));
 
         auditLogService.log(incident.getReporter(), AuditAction.CREATE, AuditTargetType.INCIDENT, incident.getId(),
@@ -142,7 +136,6 @@ public class IncidentService {
     }
 
 
-    // 5. 상태변경 (이력 기록 포함)
     @CacheEvict(value = "incidentStats", allEntries = true)
     public IncidentResponse updateStatus(Long id, IncidentStatus status, Long version) {
         if (version == null) {
@@ -152,14 +145,9 @@ public class IncidentService {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 장애사항입니다."));
 
-        // 클라이언트가 마지막으로 조회했던 버전과 지금 DB의 실제 버전을 비교한다.
-        // (직접 확인한 내용: findById로 읽은 managed 엔티티에 incident.setVersion(version)으로
-        //  값을 덮어써도 Hibernate는 그 값을 UPDATE의 WHERE 절에 쓰지 않는다 - flush 시점엔
-        //  SELECT 때 캡처해둔 스냅샷 버전을 그대로 쓰기 때문에, 그 방식으로는 "클라이언트가 stale한
-        //  버전을 보냈는지"를 전혀 검증하지 못한다. 그래서 이 비교는 명시적으로 남겨야 한다.)
-        // 이 비교를 통과한 뒤에는 entity의 버전을 손대지 않으므로, save() 시점에 실제 동시 수정이
-        // 있었다면(이 비교 통과 후 커밋 사이의 경쟁 구간) @Version이 자동으로
-        // ObjectOptimisticLockingFailureException을 던진다 - 두 경우 모두 같은 예외/같은 409로 수렴한다.
+        // 클라이언트가 마지막으로 본 버전과 지금 DB 버전을 비교해서 오래된 데이터로 수정하는 걸 막는다
+        // (entity에 버전 값을 그냥 덮어써도 JPA가 그걸로 WHERE절을 안 만들어서 직접 비교해야 함).
+        // 이 비교 통과 후 실제로 동시 수정이 생기면, 저장 시점에 @Version이 알아서 예외를 던져준다.
         if (!incident.getVersion().equals(version)) {
             throw new ObjectOptimisticLockingFailureException(Incident.class, id);
         }
@@ -199,7 +187,6 @@ public class IncidentService {
 
         incidentRepository.save(incident);
 
-        //방송 장비(실제 메시지를 보낼 수 있는)/ 변환해서 보내라/보낼 주소/보낼 내용물
         messagingTemplate.convertAndSend("/topic/incidents", toResponse(incident));
 
         auditLogService.log(null, AuditAction.CREATE, AuditTargetType.INCIDENT, incident.getId(),
@@ -246,9 +233,8 @@ public class IncidentService {
         if (newStatus == IncidentStatus.DONE) {
             incident.setResolvedAt(LocalDateTime.now());
         } else if (incident.getResolvedAt() != null) {
-            // 현재 FSM(RECEIVED → IN_PROGRESS → DONE, DONE은 종단 상태)에서는 DONE에서 다른 상태로
-            // 되돌아가는 경로가 없어 이 분기가 지금 당장 실행되진 않는다. 다만 나중에 "재오픈" 전이가
-            // 허용되거나 다른 경로로 상태가 바뀌더라도 resolvedAt이 stale하게 남지 않도록 방어적으로 둔다.
+            // 지금은 DONE에서 되돌아가는 전이가 없어서 당장 타지는 않지만, 나중에 재오픈이
+            // 허용되더라도 resolvedAt이 남아있지 않게 방어적으로 초기화해둔다.
             incident.setResolvedAt(null);
         }
     }

@@ -37,7 +37,6 @@ public class AuditLogExcelService {
         try {
             Sheet sheet = workbook.createSheet("감사로그 목록");
 
-            //헤더 행 만들기
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("번호");
             headerRow.createCell(1).setCellValue("담당자");
@@ -46,7 +45,6 @@ public class AuditLogExcelService {
             headerRow.createCell(4).setCellValue("내용");
             headerRow.createCell(5).setCellValue("일시");
 
-            //반복문으로 데이터 채우기
             int rowNum = 1;
             for (AuditLog auditLog : auditLogs) {
                 Row row = sheet.createRow(rowNum);
@@ -60,8 +58,6 @@ public class AuditLogExcelService {
                 rowNum++;
             }
 
-            //ByteArrayOutputStream으로 변환
-            //브라우저에 전송하려면 바이트(byte) 형태로 변경
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
             return out.toByteArray();

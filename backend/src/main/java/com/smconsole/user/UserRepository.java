@@ -14,12 +14,12 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByLoginId(String loginId);
-    Page<User> findByLoginIdContaining(String loginId, Pageable pageable);   // 새로 추가 (검색용)
+    Page<User> findByLoginIdContaining(String loginId, Pageable pageable);
     Page<User> findByName(String name, Pageable pageable);
     Page<User> findByNameAndPhone(String name, String phone, Pageable pageable);
     Page<User> findByStatus(UserStatus status, Pageable pageable);
     long countByStatus(UserStatus status);
-    long countByCreatedAtBetween(LocalDate start, LocalDate end);  // ← 이 줄 추가
+    long countByCreatedAtBetween(LocalDate start, LocalDate end);
 
 }
 

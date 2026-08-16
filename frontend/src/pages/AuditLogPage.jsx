@@ -1,13 +1,67 @@
 import { useState, useEffect } from 'react';
+import { LuChevronDown, LuChevronUp } from 'react-icons/lu';
 import { getAuditLogs, downloadAuditLog } from '../api/auditLogApi';
 import { getDailyStats } from '../api/dailyStatsApi';
 import { formatDateTime, formatDate, formatCompactNumber } from '../utils/format';
+import RowTable from '../components/common/RowTable';
+import NumberBadge from '../components/common/NumberBadge';
+import StatusBadge from '../components/common/StatusBadge';
+import GradientStatGrid from '../components/stats/GradientStatGrid';
+import { SOFT_SHADOW, TABLE_HEADER_TEXT, TABLE_TEXT_COLOR } from '../constants/designTokens';
 
 const actionLabels = { CREATE: '등록', UPDATE: '수정', DELETE: '삭제' };
 const targetTypeLabels = { INQUIRY: '문의', INCIDENT: '장애', ADMIN: '관리자' };
 
+// 변경상태(action) 배지 색상 — UserListPage의 USER_STATUS_COLORS와 같은 방식
+const ACTION_BADGE_COLORS = {
+    CREATE: { bg: '#D1FAE5', text: '#059669' },
+    UPDATE: { bg: '#FEF3C7', text: '#D97706' },
+    DELETE: { bg: '#FEE2E2', text: '#DC2626' },
+};
+
 // 하루(밀리초) - 두 target_date가 실제로 "전일"인지(중간에 집계가 비어있지 않은지) 확인할 때 씀
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+// 감사로그 행의 컬럼 비율 (헤더와 데이터 행이 동일하게 사용)
+const LOG_ROW_GRID = '0.5fr 1.1fr 1.3fr 1fr 2.6fr 1.3fr';
+
+// 일별 통계 이력 목록이 이 높이를 넘으면 그 안에서만 스크롤됨 (대략 카드 3장 정도)
+const DAILY_HISTORY_MAX_HEIGHT = '320px';
+
+// 페이지당 행 개수 — 번호 배지 계산(page * PAGE_SIZE + index + 1)에도 그대로 씀
+const PAGE_SIZE = 8;
+
+// 리스트가 눌릴 때 페이지 전체가 아니라 표 안쪽에서만 가로 스크롤되게 하는 최소 너비
+const ROW_MIN_WIDTH = '760px';
+
+// UserListPage와 동일한 색상군 (그라데이션 대신 단색)
+const FLAT_COLORS = {
+    users: '#4C5F91',
+    inquiries: '#D97706',
+    incidents: '#DC2626',
+};
+
+// 통계 카드 하단 흰색 영역 (제목 + 전일 대비) — GradientStatGrid의 footer로 그대로 넘김
+function StatFooter({ title, delta, deltaGoodDirection }) {
+    let deltaColorClass = 'text-muted';
+    if (delta !== null && delta !== 0 && deltaGoodDirection) {
+        const isGood = deltaGoodDirection === 'up' ? delta > 0 : delta < 0;
+        deltaColorClass = isGood ? 'text-success' : 'text-danger';
+    }
+
+    return (
+        <>
+            <div className="fw-bold text-dark">{title}</div>
+            {delta !== null ? (
+                <span className={`small fw-semibold ${deltaColorClass}`}>
+                    {delta > 0 ? `+${delta}` : delta} 전일 대비
+                </span>
+            ) : (
+                <span className="small text-muted">전일 대비 없음</span>
+            )}
+        </>
+    );
+}
 
 function AuditLogPage() {
     const [logs, setLogs] = useState([]);
@@ -17,296 +71,251 @@ function AuditLogPage() {
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [dailyStats, setDailyStats] = useState([]);
+    const [showHistory, setShowHistory] = useState(false); // 이력 목록은 기본으로 접어둬서 화면을 덜 차지하게 함
 
     const fetchLogs = () => {
-      getAuditLogs({ adminName, action, targetType, page, size: 8 })
-        .then(res => {
-            setLogs(res.data.content || []);
-            setTotalPages(res.data.totalPages);
-          })
-          .catch(err => {
-            console.error(err);
-            setLogs([]);
-          });
-      };
+        getAuditLogs({ adminName, action, targetType, page, size: PAGE_SIZE })
+            .then(res => {
+                setLogs(res.data.content || []);
+                setTotalPages(res.data.totalPages);
+            })
+            .catch(err => {
+                console.error(err);
+                setLogs([]);
+            });
+    };
 
     const fetchDailyStats = () => {
-      getDailyStats()
-        .then(res => {
-          const sorted = [...(res.data || [])].sort((a, b) => a.targetDate.localeCompare(b.targetDate));
-          setDailyStats(sorted);
-        })
-        .catch(err => {
-          console.error(err);
-          setDailyStats([]);
-        });
+        getDailyStats()
+            .then(res => {
+                const sorted = [...(res.data || [])].sort((a, b) => a.targetDate.localeCompare(b.targetDate));
+                setDailyStats(sorted);
+            })
+            .catch(err => {
+                console.error(err);
+                setDailyStats([]);
+            });
     };
 
     useEffect(() => {
         fetchLogs();
-      }, [page, action, targetType]);
+    }, [page, action, targetType]);
 
     useEffect(() => {
-      fetchDailyStats();
+        fetchDailyStats();
     }, []);
 
     const handleSearch = () => {
         setPage(0);
         fetchLogs();
-      };
+    };
 
     const latestStats = dailyStats.length > 0 ? dailyStats[dailyStats.length - 1] : null;
     const previousStats = dailyStats.length > 1 ? dailyStats[dailyStats.length - 2] : null;
     // 하루 앞선 날짜일 때만 "전일 대비"로 표시한다 - 집계가 하루 이상 비어있으면(스케줄러가 하루를
     // 건너뛴 경우 등) 오해를 부르니 그럴 땐 델타를 아예 안 보여준다.
     const hasConsecutiveDelta = !!(latestStats && previousStats
-      && new Date(latestStats.targetDate) - new Date(previousStats.targetDate) === ONE_DAY_MS);
+        && new Date(latestStats.targetDate) - new Date(previousStats.targetDate) === ONE_DAY_MS);
     const deltaOf = (key) => (hasConsecutiveDelta ? latestStats[key] - previousStats[key] : null);
-    const recentStats = [...dailyStats].reverse().slice(0, 7); // 최근 날짜가 위로 오게
+    // 최근 날짜가 맨 위로 오는 탑다운 순서. 전부 보여주는 대신 목록 자체를 스크롤로 훑어보게 한다.
+    const historyStats = [...dailyStats].reverse();
 
     const handleDownload = () => {
-      downloadAuditLog().then(res => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', '감사로그_목록.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      });
+        downloadAuditLog().then(res => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', '감사로그_목록.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        });
     };
 
-  return (
-    <div className="container-fluid px-4 py-3">
-      {/* 상단 안내 */}
-      <div className="row mx-2 mb-4">
-        <div className="col-12 px-0">
-          <div className="card border shadow-sm p-4 rounded-4 bg-white">
-            <h5 className="fw-bold text-dark mb-1">시스템 감사 로그 관리</h5>
-            <p className="text-muted small mb-0">관리자의 주요 시스템 변경 이력을 조회하고 엑셀 파일로 다운로드할 수 있습니다.</p>
-          </div>
-        </div>
-      </div>
+    return (
+        // d-flex flex-column + height:100% — Layout이 준 세로 공간을 그대로 받아서, 아래 로그
+        // 표 영역(flex-grow-1)만 남는 공간을 채우게 한다. 그 외 섹션은 원래 크기 그대로 고정.
+        <div className="container-fluid px-4 d-flex flex-column" style={{ height: '100%', minHeight: 0 }}>
 
-      {/* 일별 통계 (신규 가입자/문의/장애) 스케줄러가 매일 자정에 집계*/}
-      <div className="row mx-2 mb-4">
-        <div className="col-12 px-0">
-          <div className="card border shadow-sm p-4 rounded-4 bg-white">
-            <div className="d-flex align-items-baseline justify-content-between mb-3 flex-wrap gap-1">
-              <h5 className="fw-bold text-dark mb-0">일별 통계</h5>
-              {latestStats && (
-                <span className="text-muted small">{formatDate(latestStats.targetDate)} 기준</span>
-              )}
+            <div className="d-flex justify-content-between align-items-end mb-3">
+                <div className="d-flex align-items-center gap-2">
+                    <h2 className="fw-bold mb-0" style={{ fontSize: '18px' }}>일별 통계</h2>
+                    {/* 화살표를 누르면 아래 날짜별 이력 목록이 펼쳐지고/접힌다 */}
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-light rounded-circle d-flex align-items-center justify-content-center p-0 border"
+                        style={{ width: '26px', height: '26px' }}
+                        onClick={() => setShowHistory((prev) => !prev)}
+                        title={showHistory ? '이력 접기' : '이력 펼치기'}
+                    >
+                        {showHistory ? <LuChevronUp size={16} /> : <LuChevronDown size={16} />}
+                    </button>
+                </div>
+                {latestStats && (
+                    <span className="text-muted small">{formatDate(latestStats.targetDate)} 기준</span>
+                )}
             </div>
 
             {!latestStats ? (
-              <p className="text-muted small mb-0">아직 집계된 일별 통계가 없습니다.</p>
-            ) : (
-              <>
-                <div className="row g-3">
-                  <StatTile
-                    label="신규 가입자"
-                    value={latestStats.newUsers}
-                    delta={deltaOf('newUsers')}
-                    deltaGoodDirection="up"
-                  />
-                  <StatTile
-                    label="신규 문의"
-                    value={latestStats.newInquiries}
-                    delta={deltaOf('newInquiries')}
-                    deltaGoodDirection={null}
-                  />
-                  <StatTile
-                    label="신규 장애"
-                    value={latestStats.newIncidents}
-                    delta={deltaOf('newIncidents')}
-                    deltaGoodDirection="down"
-                  />
+                <div className="card border-0 rounded-4 bg-white p-4 mb-5 text-muted small" style={{ boxShadow: SOFT_SHADOW }}>
+                    아직 집계된 일별 통계가 없습니다.
                 </div>
+            ) : (
+                <>
+                    <GradientStatGrid
+                        columnClassName="col-12 col-md-4"
+                        tiles={[
+                            {
+                                background: FLAT_COLORS.users,
+                                tagLabel: 'USERS',
+                                value: formatCompactNumber(latestStats.newUsers),
+                                unit: '명',
+                                footer: <StatFooter title="신규 가입자" delta={deltaOf('newUsers')} deltaGoodDirection="up" />,
+                            },
+                            {
+                                background: FLAT_COLORS.inquiries,
+                                tagLabel: 'INQUIRIES',
+                                value: formatCompactNumber(latestStats.newInquiries),
+                                unit: '건',
+                                footer: <StatFooter title="신규 문의" delta={deltaOf('newInquiries')} deltaGoodDirection={null} />,
+                            },
+                            {
+                                background: FLAT_COLORS.incidents,
+                                tagLabel: 'INCIDENTS',
+                                value: formatCompactNumber(latestStats.newIncidents),
+                                unit: '건',
+                                footer: <StatFooter title="신규 장애" delta={deltaOf('newIncidents')} deltaGoodDirection="down" />,
+                            },
+                        ]}
+                    />
 
-                {recentStats.length > 1 && (
-                  <div className="table-responsive data-table-wrap mt-3">
-                    <table className="table table-sm mb-0 data-table">
-                      <colgroup>
-                        <col style={{ width: '28%' }} />
-                        <col style={{ width: '24%' }} />
-                        <col style={{ width: '24%' }} />
-                        <col style={{ width: '24%' }} />
-                      </colgroup>
-                      <thead>
-                        <tr className="text-muted small text-uppercase">
-                          <th className="fw-semibold">날짜</th>
-                          <th className="fw-semibold text-end">신규 가입자</th>
-                          <th className="fw-semibold text-end">신규 문의</th>
-                          <th className="fw-semibold text-end">신규 장애</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentStats.map((row) => (
-                          <tr key={row.id}>
-                            <td className="text-muted small">{formatDate(row.targetDate)}</td>
-                            <td className="text-end">{formatCompactNumber(row.newUsers)}</td>
-                            <td className="text-end">{formatCompactNumber(row.newInquiries)}</td>
-                            <td className="text-end">{formatCompactNumber(row.newIncidents)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </>
+                    {showHistory && historyStats.length > 1 && (
+                        <div className="card border-0 rounded-4 overflow-hidden mb-5" style={{ boxShadow: SOFT_SHADOW }}>
+                            {/* 좌우 컬럼 대신 날짜 카드 안에서 위→아래로 읽히게(탑다운) 해서 가로 스크롤이
+                                필요 없다. 최근 날짜가 맨 위로 쌓이고, 길어지면 이 안에서만 스크롤된다. */}
+                            <div
+                                className="p-3 d-flex flex-column gap-2"
+                                style={{ background: '#FAFAFD', maxHeight: DAILY_HISTORY_MAX_HEIGHT, overflowY: 'auto' }}
+                            >
+                                {historyStats.map((row) => (
+                                    <div key={row.id} className="bg-white shadow-sm px-3 py-2" style={{ borderRadius: '14px' }}>
+                                        <div className="fw-bold" style={{ color: TABLE_HEADER_TEXT, fontSize: '14px' }}>
+                                            {formatDate(row.targetDate)}
+                                        </div>
+                                        <div style={{ color: TABLE_TEXT_COLOR }}>
+                                            <div className="d-flex justify-content-between py-1" style={{ borderTop: '1px solid #F1F2F8' }}>
+                                                <span className="small">신규 가입자</span>
+                                                <span className="fw-semibold small">{formatCompactNumber(row.newUsers)}명</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between py-1" style={{ borderTop: '1px solid #F1F2F8' }}>
+                                                <span className="small">신규 문의</span>
+                                                <span className="fw-semibold small">{formatCompactNumber(row.newInquiries)}건</span>
+                                            </div>
+                                            <div className="d-flex justify-content-between py-1" style={{ borderTop: '1px solid #F1F2F8' }}>
+                                                <span className="small">신규 장애</span>
+                                                <span className="fw-semibold small">{formatCompactNumber(row.newIncidents)}건</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* 검색 및 테이블 */}
-      <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
-        <div className="p-4 border-bottom bg-light bg-opacity-25">
-          <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between">
-            <div className="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
-              <input
-                className="form-control"
-                style={{ maxWidth: '200px', height: '44px', borderRadius: '8px' }}
-                placeholder="담당자 이름 검색"
-                value={adminName}
-                onChange={(e) => setAdminName(e.target.value)}
-              />
-              <select
-                className="form-select"
-                style={{ width: '150px', height: '44px', borderRadius: '8px' }}
-                value={action}
-                onChange={(e) => setAction(e.target.value)}
-              >
-                <option value="">변경 상태</option>
-                <option value="CREATE">등록</option>
-                <option value="UPDATE">수정</option>
-                <option value="DELETE">삭제</option>
-              </select>
-              <select
-                className="form-select"
-                style={{ width: '150px', height: '44px', borderRadius: '8px' }}
-                value={targetType}
-                onChange={(e) => setTargetType(e.target.value)}
-              >
-                <option value="">전체 대상</option>
-                <option value="INQUIRY">문의</option>
-                <option value="INCIDENT">장애</option>
-                <option value="ADMIN">관리자</option>
-              </select>
-              <button
-                className="btn btn-primary px-4 fw-semibold shadow-sm"
-                style={{ height: '44px', borderRadius: '8px' }}
-                onClick={handleSearch}
-              >
-                검색
-              </button>
+            <div className="d-flex justify-content-between align-items-end mb-3">
+                <h2 className="fw-bold mb-0" style={{ fontSize: '18px' }}>감사 로그 목록</h2>
             </div>
-            <div>
-              <button
-                className="btn btn-success px-4 fw-semibold shadow-sm"
-                style={{ height: '44px', borderRadius: '8px' }}
-                onClick={handleDownload}
-              >
-                엑셀 다운
-              </button>
+
+            {/* 공통 RowTable 적용 (검색 영역 + 헤더 + 데이터 행 + 페이징을 카드 하나로 통합)
+                flex-grow-1 + minHeight:0 — 위쪽 섹션들을 뺀 나머지 세로 공간을 표가 전부 차지하고,
+                그 안에서만(데이터 행 부분) 세로 스크롤이 생기게 한다. */}
+            <div className="flex-grow-1 d-flex flex-column mb-4" style={{ minHeight: 0 }}>
+            <RowTable
+                onSearch={handleSearch}
+                filters={
+                    <>
+                        <input
+                            className="form-control rounded-pill border-2"
+                            style={{ maxWidth: '200px', height: '42px' }}
+                            placeholder="담당자 이름 검색"
+                            value={adminName}
+                            onChange={(e) => setAdminName(e.target.value)}
+                        />
+                        <select
+                            className="form-select rounded-pill border-2"
+                            style={{ width: '150px', height: '42px' }}
+                            value={action}
+                            onChange={(e) => setAction(e.target.value)}
+                        >
+                            <option value="">변경 상태</option>
+                            <option value="CREATE">등록</option>
+                            <option value="UPDATE">수정</option>
+                            <option value="DELETE">삭제</option>
+                        </select>
+                        <select
+                            className="form-select rounded-pill border-2"
+                            style={{ width: '150px', height: '42px' }}
+                            value={targetType}
+                            onChange={(e) => setTargetType(e.target.value)}
+                        >
+                            <option value="">전체 대상</option>
+                            <option value="INQUIRY">문의</option>
+                            <option value="INCIDENT">장애</option>
+                            <option value="ADMIN">관리자</option>
+                        </select>
+                    </>
+                }
+                rightActions={
+                    <button
+                        className="btn btn-outline-success rounded-pill px-3 fw-semibold shadow-sm"
+                        style={{ height: '42px' }}
+                        onClick={handleDownload}
+                    >
+                        엑셀 다운
+                    </button>
+                }
+                headers={['번호', '담당자', '변경타입', '변경상태', '내용', '일시']}
+                gridTemplateColumns={LOG_ROW_GRID}
+                minWidth={ROW_MIN_WIDTH}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+            >
+                {logs.length > 0 ? (
+                    logs.map((log, index) => (
+                        <div
+                            key={log.id}
+                            className="d-grid align-items-center bg-white shadow-sm px-3 py-3"
+                            style={{ gridTemplateColumns: LOG_ROW_GRID, columnGap: '10px', borderRadius: '18px' }}
+                        >
+                            <span>
+                                <NumberBadge number={page * PAGE_SIZE + index + 1} />
+                            </span>
+                            <span className="fw-semibold">{log.admin || '-'}</span>
+                            <span>
+                                {/* Bootstrap .badge 기본 글자색이 흰색이라 bg-light 위에서 안 보였음 — 명시적으로 색 지정 */}
+                                <span className="badge bg-light border px-2 py-1 fw-semibold" style={{ color: TABLE_TEXT_COLOR }}>
+                                    {targetTypeLabels[log.targetType]} #{log.targetId}
+                                </span>
+                            </span>
+                            <span>
+                                <StatusBadge color={ACTION_BADGE_COLORS[log.action]}>{actionLabels[log.action]}</StatusBadge>
+                            </span>
+                            <span className="text-truncate">{log.detail}</span>
+                            <span className="small">{formatDateTime(log.createdAt)}</span>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-5 text-muted bg-white" style={{ borderRadius: '18px' }}>
+                        조회된 감사 로그가 없습니다.
+                    </div>
+                )}
+            </RowTable>
             </div>
-          </div>
         </div>
-
-        <div className="table-responsive data-table-wrap mb-0">
-          <table className="table table-hover align-middle mb-0 data-table">
-            <colgroup>
-              <col style={{ width: '6%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '36%' }} />
-              <col style={{ width: '16%' }} />
-            </colgroup>
-            <thead className="table-light text-secondary small text-uppercase">
-              <tr>
-                <th className="py-3 ps-4">번호</th>
-                <th className="py-3">담당자</th>
-                <th className="py-3">변경타입</th>
-                <th className="py-3">변경상태</th>
-                <th className="py-3">내용</th>
-                <th className="py-3 pe-4">일시</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.length > 0 ? (
-                logs.map((log, index) => (
-                  <tr key={log.id}>
-                    <td className="ps-4 fw-medium text-muted">{page * 8 + index + 1}</td>
-                    <td className="fw-semibold text-dark">{log.admin || '-'}</td>
-                    <td>
-                      <span className="badge bg-light text-dark border px-2 py-1">
-                        {targetTypeLabels[log.targetType]} #{log.targetId}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">
-                        {actionLabels[log.action]}
-                      </span>
-                    </td>
-                    <td className="text-dark">{log.detail}</td>
-                    <td className="pe-4 text-muted small">{formatDateTime(log.createdAt)}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center py-5 text-muted">조회된 감사 로그가 없습니다.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="d-flex justify-content-center align-items-center p-4 border-top bg-light bg-opacity-50">
-          <button
-            className="btn btn-white border shadow-sm px-3 me-2 rounded-pill"
-            disabled={page === 0}
-            onClick={() => setPage(page - 1)}
-          >
-            이전
-          </button>
-          <span className="text-secondary small fw-bold mx-3">{page + 1} / {totalPages || 1} 페이지</span>
-          <button
-            className="btn btn-white border shadow-sm px-3 ms-2 rounded-pill"
-            disabled={page >= totalPages - 1 || totalPages === 0}
-            onClick={() => setPage(page + 1)}
-          >
-            다음
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatTile({ label, value, delta, deltaGoodDirection }) {
-  let deltaColorClass = 'text-muted';
-  if (delta !== null && delta !== 0 && deltaGoodDirection) {
-    const isGood = deltaGoodDirection === 'up' ? delta > 0 : delta < 0;
-    deltaColorClass = isGood ? 'text-success' : 'text-danger';
-  }
-
-  return (
-    <div className="col-12 col-md-4">
-      <div className="border rounded-4 p-3 h-100 bg-light bg-opacity-25">
-        <div className="text-muted small mb-1">{label}</div>
-        <div className="d-flex align-items-baseline flex-wrap gap-2">
-          <span className="fs-3 fw-bold text-dark">{formatCompactNumber(value)}</span>
-          {delta !== null && (
-            <span className={`small fw-semibold ${deltaColorClass}`}>
-              {delta > 0 ? `+${delta}` : delta} 전일 대비
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default AuditLogPage;

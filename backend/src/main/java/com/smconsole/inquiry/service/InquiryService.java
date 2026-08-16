@@ -38,7 +38,6 @@ public class InquiryService {
 
 
 
-    // 1. 목록조회 (검색+필터+페이징)
     public Page<InquiryResponse>getInquiry(
             String assigneeName, InquiryStatus status,
             InquiryType type, Pageable pageable) {
@@ -57,7 +56,6 @@ public class InquiryService {
         return inquiries.map(this::toResponse);
     }
 
-    // 2. 개별조회 (댓글+이력 포함)
     public InquiryDetailResponse getDetail(Long id) {
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
@@ -90,7 +88,6 @@ public class InquiryService {
         return new InquiryStatsResponse(waiting, inProgress, done);
     }
 
-    // 3. 댓글 작성
     public InquiryCommentResponse createComment(Long inquiryId, String content) {
         if (content == null || content.isBlank()) {
             throw new IllegalArgumentException("댓글 내용을 입력해 주세요.");
@@ -99,7 +96,6 @@ public class InquiryService {
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));
 
-        // 현재 로그인한 관리자를 작성자로 기록
         Admin admin = getCurrentAdmin();
 
         InquiryComment comment = new InquiryComment();
@@ -112,7 +108,7 @@ public class InquiryService {
         return toCommentResponse(comment);
     }
 
-    // 3-1. 댓글 삭제 - 본인이 작성한 댓글만 삭제 가능
+    // 본인이 작성한 댓글만 삭제할 수 있다.
     public void deleteComment(Long inquiryId, Long commentId) {
         InquiryComment comment = inquiryCommentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
@@ -129,9 +125,10 @@ public class InquiryService {
         inquiryCommentRepository.delete(comment);
     }
 
-    // 4. 상태 변경(이력 기록 포함, 트랜젹션으로 묶입)
     @CacheEvict(value = "inquiryStats", allEntries = true)
     public InquiryResponse updateStatus(Long id, InquiryStatus status, Long version){
+        // id+version이 둘 다 맞는 행만 찾는다. 그사이 다른 관리자가 먼저 수정해서 version이
+        // 바뀌었으면 조회 결과가 없어지므로, 그걸 곧 "누가 먼저 수정했다"는 신호로 취급한다.
         Inquiry inquiry = inquiryRepository.findByIdAndVersion(id, version)
                 .orElseThrow(() -> new IllegalStateException("다른 관리자가 상태사항을 이미 수정했습니다. 새로고침 후 시도해 주세요."));
 
@@ -167,7 +164,6 @@ public class InquiryService {
         return toResponse(inquiry);
     }
 
-    // 5. 담당자 배정
     public InquiryResponse updatesAssign(Long id, Long adminId){
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 문의입니다."));

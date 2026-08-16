@@ -60,14 +60,19 @@ function Header() {
          >
              <LuBell size={22} />
              {urgentCount > 0 && (
+                 // 최소 폰트 14px 기준에 맞춰 배지 크기도 같이 키움 (원형 유지되도록 minWidth+height 사용)
                  <span
-                     className="badge bg-danger rounded-circle"
+                     className="badge bg-danger d-flex align-items-center justify-content-center"
                      style={{
                          position: 'absolute',
-                         top: '-6px',
-                         right: '-6px',
-                         fontSize: '10px',
-                         padding: '3px 6px'
+                         top: '-9px',
+                         right: '-9px',
+                         fontSize: '14px',
+                         minWidth: '24px',
+                         height: '24px',
+                         borderRadius: '12px',
+                         padding: '0 5px',
+                         lineHeight: 1
                      }}
                  >
                      {urgentCount}

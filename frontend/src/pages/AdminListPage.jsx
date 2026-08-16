@@ -1,118 +1,127 @@
-import { useState, useEffect } from 'react';
-import { getAdmin, getAdminStats, unlockAdmin, deleteAdmin } from "../api/adminApi";
-import axiosInstance from '../api/axiosInstance';
+import { useState } from 'react';
 import SystemModal from '../components/SystemModal';
 import AdminCreateModal from '../components/AdminCreateModal';
+import RowTable from '../components/common/RowTable';
+import NumberBadge from '../components/common/NumberBadge';
+import StatusBadge from '../components/common/StatusBadge';
+import GradientStatGrid from '../components/stats/GradientStatGrid';
+import { TABLE_TEXT_COLOR } from '../constants/designTokens';
+import addMemberImg from '../images/3d.png';
+import { useAdminList, PAGE_SIZE } from '../hooks/useAdminList';
+
+// 관리자 목록 행의 컬럼 비율 (헤더와 데이터 행이 동일하게 사용)
+const ADMIN_ROW_GRID = '0.5fr 1.2fr 1.4fr 1fr 1.2fr 1.2fr 1fr';
+
+// "관리자 추가" 버튼은 구분되는 파란색으로
+const ADD_BTN_COLOR = '#2563EB';
+
+// 원래 색상(primary=전체, danger=잠김, warning=대표)에 맞춘 그라데이션 + "더보기" 카드용 남색
+const STAT_GRADIENTS = {
+    all: 'linear-gradient(135deg, #93C5FD 0%, #2563EB 100%)',      // 원래 bg-primary/text-primary
+    locked: 'linear-gradient(135deg, #FCA5A5 0%, #DC2626 100%)',   // 원래 bg-danger/text-danger
+    super: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)',    // 원래 bg-warning/text-warning
+    more: 'linear-gradient(135deg, #AEC0EC 0%, #4C5F91 100%)',
+};
+
+// 잠금 상태 배지 색상 (부드러운 파스텔 톤)
+const LOCK_STATUS_COLORS = {
+    locked: { bg: '#FEE2E2', text: '#B91C1C' },
+    normal: { bg: '#DCFCE7', text: '#166534' },
+};
+
+// 리스트가 눌릴 때 페이지 전체가 아니라 표 안쪽에서만 가로 스크롤되게 하는 최소 너비
+const ROW_MIN_WIDTH = '760px';
+
+// 통계 카드 하단 흰색 영역 (노트 텍스트 + 제목 + 화살표) — GradientStatGrid의 footer로 그대로 넘김
+function StatFooter({ title, note }) {
+    return (
+        <>
+            <div>
+                <div className="text-muted" style={{ fontSize: '14px' }}>{note}</div>
+                <div className="fw-bold text-dark">{title}</div>
+            </div>
+            <span className="text-primary fw-semibold small">›</span>
+        </>
+    );
+}
 
 function AdminListPage() {
-    const [admins, setAdmins] = useState([]);
-    const [name, setName] = useState("");
-    const [role, setRole] = useState("");
-    const [myRole, setMyRole] = useState("");
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [stats, setStats] = useState({ totalCount: 0, lockedCount: 0, superAdminCount: 0, adminCount: 0, staffCount: 0 });
+    // 데이터 조회/상태는 전부 useAdminList 훅이 들고 있고, 여기선 화면만 그린다.
+    const {
+        admins, name, setName, role, setRole, myRole, page, setPage, totalPages, stats,
+        fetchAdmins, fetchStats, handleSearch, handleUnlock, handleDelete,
+    } = useAdminList();
+
     const [showSystemModal, setShowSystemModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
 
-    const fetchAdmins = () => {
-        getAdmin({ name, role, page, size: 10 })
-            .then(res => {
-                setAdmins(res.data.content || []);
-                setTotalPages(res.data.totalPages);
-            })
-            .catch(err => {
-                console.error(err);
-                setAdmins([]);
-            });
-    };
-
-    const fetchStats = () => {
-        getAdminStats().then(res => setStats(res.data));
-    };
-
-    useEffect(() => {
-        fetchAdmins();
-    }, [page, role]);
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
-
-    useEffect(() => {
-        axiosInstance.get('/api/me').then(res => setMyRole(res.data.role));
-    }, []);
-
-    const handleSearch = () => {
-        setPage(0);
-        fetchAdmins();
-    };
-
-    const handleUnlock = async (id) => {
-        await unlockAdmin(id);
-        fetchAdmins();
-        fetchStats();
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm("정말 삭제하시겠습니까?")) {
-            await deleteAdmin(id);
-            fetchAdmins();
-            fetchStats();
-        }
+    // 통계 "더보기" 클릭 — 필요에 맞게 라우팅/모달 오픈 등으로 교체하세요.
+    const handleViewMoreStats = () => {
+        console.log("전체 통계 보기");
     };
 
     return (
-        <div className="container-fluid px-4 py-3">
-            <div className="row g-4 mb-4">
-                <div className="col-md-4">
-                    <div className="card border shadow-sm p-4 rounded-4 bg-white">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span className="text-muted small fw-semibold d-block mb-1">전체 관리자</span>
-                                <h3 className="fw-bold mb-0 text-dark">{stats.totalCount} <span className="fs-6 fw-normal text-muted">명</span></h3>
-                            </div>
-                            <div className="bg-primary bg-opacity-10 text-primary p-3 rounded-3 fw-bold">ALL</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="card border shadow-sm p-4 rounded-4 bg-white">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span className="text-muted small fw-semibold d-block mb-1">잠긴 계정</span>
-                                <h3 className="fw-bold mb-0 text-danger">{stats.lockedCount} <span className="fs-6 fw-normal text-muted">명</span></h3>
-                            </div>
-                            <div className="bg-danger bg-opacity-10 text-danger p-3 rounded-3 fw-bold">LOCK</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="card border shadow-sm p-4 rounded-4 bg-white">
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span className="text-muted small fw-semibold d-block mb-1">대표 관리자</span>
-                                <h3 className="fw-bold mb-0 text-dark">{stats.superAdminCount} <span className="fs-6 fw-normal text-muted">명</span></h3>
-                            </div>
-                            <div className="bg-warning bg-opacity-10 text-warning p-3 rounded-3 fw-bold">SUPER</div>
-                        </div>
-                    </div>
-                </div>
+        // d-flex flex-column + height:100% — Layout이 준 세로 공간을 그대로 받아서, 아래 표
+        // 영역(flex-grow-1)만 남는 공간을 채우게 한다. 그 외 섹션은 원래 크기 그대로 고정.
+        <div className="container-fluid px-4 d-flex flex-column" style={{ height: '100%', minHeight: 0 }}>
+
+            <div className="d-flex justify-content-between align-items-end mb-3">
+                <h2 className="fw-bold mb-0" style={{ fontSize: '18px' }}>현황</h2>
+                <span className="text-muted small">총 {stats.totalCount}명</span>
+            </div>
+            <GradientStatGrid
+                tiles={[
+                    {
+                        background: STAT_GRADIENTS.all,
+                        tagLabel: 'ALL',
+                        value: stats.totalCount,
+                        unit: '명',
+                        footer: <StatFooter title="전체 관리자" note="등록된 계정" />,
+                    },
+                    {
+                        background: STAT_GRADIENTS.locked,
+                        tagLabel: 'LOCK',
+                        value: stats.lockedCount,
+                        unit: '명',
+                        footer: <StatFooter title="잠긴 계정" note="로그인 잠금" />,
+                    },
+                    {
+                        background: STAT_GRADIENTS.super,
+                        tagLabel: 'SUPER',
+                        value: stats.superAdminCount,
+                        unit: '명',
+                        footer: <StatFooter title="대표 관리자" note="최상위 권한" />,
+                    },
+                ]}
+                moreTile={{
+                    background: STAT_GRADIENTS.more,
+                    image: addMemberImg,
+                    onClick: handleViewMoreStats,
+                }}
+            />
+
+            <div className="d-flex justify-content-between align-items-end mb-3">
+                <h2 className="fw-bold mb-0" style={{ fontSize: '18px' }}>관리자 목록</h2>
             </div>
 
-            <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
-                <div className="p-4 border-bottom bg-light bg-opacity-25">
-                    <div className="d-flex flex-wrap gap-2 align-items-center">
+            {/* 공통 RowTable 적용 (검색 영역 + 헤더 + 데이터 행 + 페이징을 카드 하나로 통합)
+                flex-grow-1 + minHeight:0 — 위쪽 섹션들을 뺀 나머지 세로 공간을 표가 전부 차지하고,
+                그 안에서만(데이터 행 부분) 세로 스크롤이 생기게 한다. */}
+            <div className="flex-grow-1 d-flex flex-column mb-4" style={{ minHeight: 0 }}>
+            <RowTable
+                onSearch={handleSearch}
+                filters={
+                    <>
                         <input
-                            className="form-control"
-                            style={{ maxWidth: '240px', height: '44px', borderRadius: '8px' }}
+                            className="form-control rounded-pill border-2"
+                            style={{ maxWidth: '220px', height: '42px' }}
                             placeholder="이름 검색"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                         <select
-                            className="form-select"
-                            style={{ width: '150px', height: '44px', borderRadius: '8px' }}
+                            className="form-select rounded-pill border-2"
+                            style={{ width: '150px', height: '42px' }}
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
                         >
@@ -121,123 +130,85 @@ function AdminListPage() {
                             <option value="ADMIN">팀장</option>
                             <option value="STAFF">직원</option>
                         </select>
-                        <button
-                            className="btn btn-primary px-4 fw-semibold shadow-sm"
-                            style={{ height: '44px', borderRadius: '8px' }}
-                            onClick={handleSearch}
+                    </>
+                }
+                rightActions={
+                    myRole === 'SUPER_ADMIN' && (
+                        <>
+                            <button
+                                className="btn rounded-pill px-4 fw-semibold shadow-sm text-white"
+                                style={{ height: '42px', background: ADD_BTN_COLOR, border: 'none' }}
+                                onClick={() => setShowCreateModal(true)}
+                            >
+                                관리자 추가
+                            </button>
+                            <button
+                                className="btn btn-outline-danger rounded-pill px-4 fw-semibold shadow-sm"
+                                style={{ height: '42px' }}
+                                onClick={() => setShowSystemModal(true)}
+                            >
+                                시스템 점검 설정
+                            </button>
+                        </>
+                    )
+                }
+                headers={['번호', '이름', '아이디', '직급', '잠금여부', '입사일', { label: '관리', className: 'text-end' }]}
+                gridTemplateColumns={ADMIN_ROW_GRID}
+                minWidth={ROW_MIN_WIDTH}
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+            >
+                {admins.length > 0 ? (
+                    admins.map((admin, index) => (
+                        <div
+                            key={admin.id}
+                            className="d-grid align-items-center bg-white shadow-sm px-3 py-3"
+                            style={{ gridTemplateColumns: ADMIN_ROW_GRID, columnGap: '10px', borderRadius: '18px' }}
                         >
-                            검색
-                        </button>
-                        {myRole === 'SUPER_ADMIN' && (
-                            <div className="d-flex gap-2 ms-auto">
-                                <button
-                                    className="btn btn-primary px-4 fw-semibold"
-                                    style={{ height: '44px', borderRadius: '8px' }}
-                                    onClick={() => setShowCreateModal(true)}
-                                >
-                                    관리자 추가
-                                </button>
-                                <button
-                                    className="btn btn-outline-danger px-4 fw-semibold"
-                                    style={{ height: '44px', borderRadius: '8px' }}
-                                    onClick={() => setShowSystemModal(true)}
-                                >
-                                    시스템 점검 설정
-                                </button>
-                            </div>
-                        )}
+                            <span>
+                                <NumberBadge number={page * PAGE_SIZE + index + 1} />
+                            </span>
+                            <span className="fw-semibold">{admin.name}</span>
+                            <span className="text-truncate">{admin.loginId}</span>
+                            <span>
+                                {/* Bootstrap .badge 기본 글자색이 흰색이라 bg-light 위에서 안 보였음 — 명시적으로 색 지정 */}
+                                <span className="badge rounded-pill bg-light border px-3 py-2 fw-semibold" style={{ color: TABLE_TEXT_COLOR }}>
+                                    {admin.role}
+                                </span>
+                            </span>
+                            <span>
+                                {admin.isLocked ? (
+                                    <StatusBadge
+                                        color={LOCK_STATUS_COLORS.locked}
+                                        onClick={() => handleUnlock(admin.id)}
+                                        title="클릭하면 잠금 해제"
+                                    >
+                                        🔒 잠김 (해제)
+                                    </StatusBadge>
+                                ) : (
+                                    <StatusBadge color={LOCK_STATUS_COLORS.normal}>정상</StatusBadge>
+                                )}
+                            </span>
+                            <span className="small">{admin.createdAt}</span>
+                            <span className="text-end">
+                                {myRole === 'SUPER_ADMIN' && (
+                                    <button
+                                        className="btn btn-sm btn-outline-danger px-3 rounded-pill"
+                                        onClick={() => handleDelete(admin.id)}
+                                    >
+                                        탈퇴
+                                    </button>
+                                )}
+                            </span>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-5 text-muted bg-white" style={{ borderRadius: '18px' }}>
+                        검색된 관리자가 없습니다.
                     </div>
-                </div>
-
-                <div className="table-responsive data-table-wrap mb-0">
-                    <table className="table table-hover align-middle mb-0 data-table">
-                        <colgroup>
-                            <col style={{ width: '6%' }} />
-                            <col style={{ width: '14%' }} />
-                            <col style={{ width: '18%' }} />
-                            <col style={{ width: '14%' }} />
-                            <col style={{ width: '16%' }} />
-                            <col style={{ width: '16%' }} />
-                            <col style={{ width: '16%' }} />
-                        </colgroup>
-                        <thead className="table-light text-secondary small text-uppercase">
-                            <tr>
-                                <th className="py-3 ps-4">번호</th>
-                                <th className="py-3">이름</th>
-                                <th className="py-3">아이디</th>
-                                <th className="py-3">직급</th>
-                                <th className="py-3">잠금여부</th>
-                                <th className="py-3">입사일</th>
-                                <th className="py-3 pe-4 text-end">관리</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {admins.length > 0 ? (
-                                admins.map((admin, index) => (
-                                    <tr key={admin.id}>
-                                        <td className="ps-4 fw-medium text-muted">{page * 10 + index + 1}</td>
-                                        <td className="fw-semibold text-dark">{admin.name}</td>
-                                        <td className="text-muted">{admin.loginId}</td>
-                                        <td>
-                                            <span className="badge bg-light text-dark border px-2 py-1">
-                                                {admin.role}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {admin.isLocked ? (
-                                                <span
-                                                    className="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1"
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => handleUnlock(admin.id)}
-                                                    title="클릭하면 잠금 해제"
-                                                >
-                                                    🔒 잠김 (해제)
-                                                </span>
-                                            ) : (
-                                                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                                                    정상
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="text-muted small">{admin.createdAt}</td>
-                                        <td className="pe-4 text-end">
-                                            {myRole === 'SUPER_ADMIN' && (
-                                                <button
-                                                    className="btn btn-sm btn-outline-danger px-3 rounded-pill"
-                                                    onClick={() => handleDelete(admin.id)}
-                                                >
-                                                    탈퇴
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="7" className="text-center py-5 text-muted">검색된 관리자가 없습니다.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="d-flex justify-content-center align-items-center p-4 border-top bg-light bg-opacity-50">
-                    <button
-                        className="btn btn-white border shadow-sm px-3 me-2 rounded-pill"
-                        disabled={page === 0}
-                        onClick={() => setPage(page - 1)}
-                    >
-                        이전
-                    </button>
-                    <span className="text-secondary small fw-bold mx-3">{page + 1} / {totalPages || 1} 페이지</span>
-                    <button
-                        className="btn btn-white border shadow-sm px-3 ms-2 rounded-pill"
-                        disabled={page >= totalPages - 1 || totalPages === 0}
-                        onClick={() => setPage(page + 1)}
-                    >
-                        다음
-                    </button>
-                </div>
+                )}
+            </RowTable>
             </div>
 
             {showSystemModal && (

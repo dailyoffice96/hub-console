@@ -26,29 +26,22 @@ public class OpenAiService {
     @Value("${openai.api.url:https://api.openai.com/v1/chat/completions}")
     private String apiUrl;
 
-    //OpenAI 서버에 요청을 보낼 도구
-    //연결/응답 타임아웃을 안 걸어두면 OpenAI가 응답을 안 줄 때 이 스레드가 무한정 붙잡히고,
-    //호출하는 쪽(AuditLogService)은 @Transactional이라 그동안 DB 커넥션도 같이 물고 있게 된다.
-    //(SlackNotificationService에서 쓴 것과 같은 방식 - RestTemplateBuilder는 Boot 4.1엔 없다.)
+    // 타임아웃을 안 걸면 OpenAI가 응답 안 줄 때 이 스레드가 무한정 붙잡히고, 호출하는 쪽
+    // (AuditLogService)은 @Transactional이라 그동안 DB 커넥션도 같이 물고 있게 된다.
     private final RestTemplate restTemplate;
 
     public OpenAiService() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); // 3초
-        factory.setReadTimeout(15000);   // 15초 - AI 응답이라 Slack보다 여유를 둠
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(15000);   // AI 응답이라 Slack(5초)보다 여유를 둠
         this.restTemplate = new RestTemplate(factory);
     }
 
-    //"analyze"(분석)라는 이름의 메서드를 만들어 prompt(질문/요청 내용)를 파라미터로 받겠어요
     public String analyze(String prompt){
-        //어떤 형식인지, 누가 보낸 건지 확인
         HttpHeaders headers = new HttpHeaders();
-        //이 편지의 내용은 JSON 형식
         headers.setContentType(MediaType.APPLICATION_JSON);
-        //API 키를 가진 사람이니, 이 요청을 처리
         headers.setBearerAuth(apikey);
 
-        //OpenAI에게 실제로 보낼 "편지 내용" Map(key-value)으로 데이터를 담아서 보냄
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
@@ -56,10 +49,8 @@ public class OpenAiService {
                 )
         );
 
-        //"봉투(headers)"와 "편지 내용(requestBody)"을 하나로 합쳐서, 진짜로 보낼 준비가 된 "완성된 편지"
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        //이 완성된 편지(entity)를, 이 주소(URL)로 보내고, 답장을 Map 형태로 받아라
         Map<?, ?> response;
         try {
             response = restTemplate.postForObject(apiUrl, entity, Map.class);

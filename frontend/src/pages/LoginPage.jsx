@@ -4,7 +4,7 @@ import { login } from "../api/authApi";
 import { getSystemSetting } from "../api/systemsettingApi";
 import image1 from "../images/11.png";
 import image2 from "../images/22.png";
-import image3 from "../images/33_1.png";
+import image3 from "../images/33.png";
 import "../css/Login.css";
 
 const brandSlides = [
@@ -83,7 +83,6 @@ function LoginPage() {
                 </p>
             </div>
 
-            {/* 중앙 이미지 슬라이더 */}
             <div className="brand-slider">
                 <img src={brandSlides[imgIndex].image} alt="" />
             </div>

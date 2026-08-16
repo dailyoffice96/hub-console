@@ -43,6 +43,8 @@ public class User {
     @Column(name="dormant_at")
     private LocalDate dormantAt;
 
+    // DB 컬럼명이 updated_at이 아니라 up_date_at이다. 오타처럼 보여도 기존 테이블 그대로라
+    // 임의로 고치면 안 된다.
     @Column(name="up_date_at")
     private LocalDate updatedAt;
 

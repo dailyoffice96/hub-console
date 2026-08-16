@@ -30,5 +30,5 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
 
     long countByStatus(IncidentStatus status);
     long countBySeverity(IncidentSeverity status);
-    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);   // ← 이 줄 추가
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

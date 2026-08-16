@@ -10,10 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 /**
- * 실제 집계+저장 트랜잭션만 담당한다. DailyStatsService와 분리해둔 이유:
- * @Scheduled로 호출되는 DailyStatsService#aggregateYesterday()가 같은 클래스의 @Transactional
- * 메서드를 this.xxx()로 직접 호출(self-invocation)하면 Spring AOP 프록시를 안 거치게 되어
- * @Transactional이 조용히 무시된다. 별도 빈으로 분리해서 프록시를 통한 호출이 되도록 한다.
+ * 실제 집계+저장 트랜잭션만 담당한다. 같은 클래스 안에서 this.xxx()로 @Transactional 메서드를
+ * 직접 부르면(self-invocation) Spring AOP 프록시를 안 거쳐서 트랜잭션이 조용히 무시되기 때문에,
+ * DailyStatsService와 분리해 별도 빈으로 뒀다.
  */
 @Component
 @RequiredArgsConstructor
@@ -50,10 +49,8 @@ class DailyStatsAggregator {
         dailyStats.setNewInquiries(newInquiries);
         dailyStats.setNewIncidents(newIncidents);
 
-        // 위 findByTargetDate 체크와 이 save() 사이에는 여전히 경쟁 구간이 있다(두 인스턴스가 동시에
-        // 통과할 수 있음) - 그 마지막 방어는 DailyStats의 target_date 유니크 제약이 맡는다.
-        // 제약에 걸리면 DataIntegrityViolationException이 던져지고, 호출자(DailyStatsService)가
-        // 이를 "다른 프로세스가 먼저 저장함"으로 구분해서 처리한다.
+        // 위 findByTargetDate 체크와 이 save() 사이에도 경쟁 구간이 남아있어서, 최종 방어는
+        // DailyStats의 target_date 유니크 제약이 맡는다. 제약 위반 시 예외는 호출자가 처리한다.
         dailyStatsRepository.save(dailyStats);
         return true;
     }

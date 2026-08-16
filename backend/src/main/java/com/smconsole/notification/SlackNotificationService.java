@@ -11,18 +11,17 @@ import java.util.Map;
 @Service
 public class SlackNotificationService {
 
-    @Value("${slack.webhook.url}") //application.properties에 적어둔 값을 이 필드로 가져옴
+    @Value("${slack.webhook.url}")
     private  String webhookUrl;
 
-    //스프링에서 다른 서버(여기선 Slack)로 HTTP 요청을 보낼 때 쓰는 도구
-    //연결/응답 타임아웃을 안 걸어두면 Slack이 응답을 안 줄 때 이 스레드가 무한정 붙잡히고,
-    //호출하는 쪽(IncidentService)은 @Transactional이라 그동안 DB 트랜잭션도 같이 열려있게 된다.
+    // 타임아웃을 안 걸면 Slack이 응답 안 줄 때 이 스레드가 무한정 붙잡히고, 호출하는 쪽
+    // (IncidentService)은 @Transactional이라 그동안 DB 트랜잭션도 같이 열려있게 된다.
     private final RestTemplate restTemplate;
 
     public SlackNotificationService() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); // 3초
-        factory.setReadTimeout(5000);    // 5초
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(5000);
         this.restTemplate = new RestTemplate(factory);
     }
 
@@ -30,12 +29,6 @@ public class SlackNotificationService {
         Map<String, String> payload = new HashMap<>();
         payload.put("text", message);
 
-        //payload(짐)를, webhookUrl(Slack이 알려준 그 주소)로 실제로 전송
-        /*        1. Map (자바 세계의 자료구조)
-                     ↓ restTemplate이 전송할 때 자동 변환
-                  2. JSON (Slack이 이해할 수 있는 형태)
-                     ↓ 실제로 인터넷을 통해 전송
-                  3. Slack이 받아서 채널에 메시지로 표시     */
         restTemplate.postForObject(webhookUrl, payload, String.class);
     }
 }

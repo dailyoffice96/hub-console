@@ -1,9 +1,8 @@
-﻿import { useState } from 'react';
-import { updateUser, dormantUser, activateUser } from "../api/usersApi"
-import USER_STATUS_COLORS from '../constants/statusColors'
+﻿import { dormantUser, activateUser } from "../api/usersApi"
+import {USER_STATUS_COLORS} from '../constants/statusColors'
 
 function UserDetailModal({ user, onClose, onUpdated }) {
-  // 조건 없이 호출 즉시 DORMANT로 바뀌는 수동 처리입니다.
+  // 조건 없이 호출 즉시 DORMANT로 바뀌는 수동 처리다.
   const handleDormant = async () => {
     try {
       await dormantUser(user.id);
@@ -14,7 +13,7 @@ function UserDetailModal({ user, onClose, onUpdated }) {
     }
   };
 
-  // 휴면 상태를 다시 정상(ACTIVE)으로 되돌립니다.
+  // 휴면 상태를 다시 정상(ACTIVE)으로 되돌린다.
   const handleActivate = async () => {
     try {
       await activateUser(user.id);

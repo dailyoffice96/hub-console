@@ -7,7 +7,6 @@ function SystemModal({ onClose }) {
   const [endAt, setEndAt] = useState("");
 
   useEffect(() => {
-    // 기존 설정이 있으면 불러와서 입력창에 미리 채워주기
     getSystemSetting().then(res => {
       if (res.data) {
         setMessage(res.data.message);

@@ -44,6 +44,7 @@ public class UserService {
         return toDetailResponse(user);
     }
 
+    // 통계는 목록 화면 들어갈 때마다 호출돼서 매번 count 쿼리 3번 도는 걸 막으려고 캐싱한다.
     @Cacheable(value = "userStats")
     public UserStatsResponse  getStats(){
         long active = userRepository.countByStatus(UserStatus.ACTIVE);
@@ -52,11 +53,9 @@ public class UserService {
         return  new  UserStatsResponse(active, dormant, withdrawn);
     }
 
-    // 부분 수정: null/빈 값인 필드는 기존 값을 그대로 유지한다.
-    // UserResponse(마스킹된 값)가 아니라 UserUpdateRequest(원본 값)를 받는 이유는
-    // toResponse()가 응답에 마스킹된 이름/전화번호/이메일만 담아서 돌려주는데, 그걸 그대로
-    // 수정 요청에 재사용하면 화면에 표시된 "홍*동" 같은 마스킹 값이 그대로 DB 원본을
-    // 덮어써버리기 때문이다.
+    // 마스킹된 값(UserResponse)이 아니라 원본 값(UserUpdateRequest)을 받는다.
+    // 마스킹된 "홍*동" 같은 값을 그대로 받으면 그게 원본을 덮어써버린다.
+    // null/빈 값인 필드는 수정 안 하고 기존 값 그대로 둔다.
     public UserResponse update(Long id, UserUpdateRequest request){
         User user = userRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -76,9 +75,8 @@ public class UserService {
         return toResponse(user);
     }
 
-    // 즉시 휴면 전환: 별도 유예 기간이나 "최근 미접속 N일" 같은 자동 판단 조건 없이,
-    // 관리자가 이 API를 호출하는 즉시 무조건 DORMANT로 바뀌는 수동 처리입니다.
-    // (이 서비스는 회원이 직접 로그인하는 구조가 아니라서 탈퇴(WITHDRAWN) 상태와의 충돌은 고려하지 않습니다.)
+    // "최근 미접속 N일" 같은 자동 판단 없이, 관리자가 호출하면 무조건 바로 DORMANT로 바뀐다.
+    // 상태가 바뀌면 캐시해둔 통계 숫자도 같이 바뀌어야 해서 캐시를 지운다.
     @CacheEvict(value = "userStats", allEntries = true)
     public UserResponse dormant(Long id){
         User user = userRepository.findById(id)
@@ -91,8 +89,7 @@ public class UserService {
         return toResponse(user);
     }
 
-    // 휴면 해제: 휴면(DORMANT) 상태를 다시 정상(ACTIVE)으로 되돌립니다.
-    // dormantAt은 "휴면으로 전환된 시점"이므로 해제하면서 초기화합니다.
+    // dormantAt은 "휴면으로 바뀐 시점"이라 휴면 해제하면 같이 초기화한다.
     @CacheEvict(value = "userStats", allEntries = true)
     public UserResponse activate(Long id){
         User user = userRepository.findById(id)
@@ -106,7 +103,6 @@ public class UserService {
         return toResponse(user);
     }
 
-    //User(원본, DB 데이터)를 UserResponse(화면에 보낼 안전한 버전)로 바꾸는 작업
     private UserResponse toResponse(User user) {
         return new UserResponse(
                 user.getId(),
@@ -121,7 +117,7 @@ public class UserService {
         );
     }
 
-    // 상세 조회 전용: 목록/검색용 toResponse()와 달리 마스킹 안 된 실명(name)을 같이 담는다.
+    // 목록/검색용 toResponse()와 달리, 상세 조회에서는 마스킹 안 된 실명(name)도 같이 내려준다.
     private UserDetailResponse toDetailResponse(User user) {
         return new UserDetailResponse(
                 user.getId(),
@@ -137,17 +133,20 @@ public class UserService {
         );
     }
 
+    // 개인정보 보호를 위해 이름 가운데 글자를 *로 가린다.
     private String maskName(String name){
         if (name == null || name.length() <= 1) return name;
         if (name.length() == 2) return  name.charAt(0) + "*";
         else return name.charAt(0) + "*".repeat(name.length() - 2) + name.charAt(name.length()-1);
     }
 
+    // 개인정보 보호를 위해 전화번호 가운데 자리를 *로 가린다.
     private String maskPhone(String phone){
         if (phone == null) return null;
         else return phone.replaceAll("(\\d{2,3})-(\\d{3,4})-(\\d{4})", "$1-****-$3");
     }
 
+    // 개인정보 보호를 위해 이메일 아이디 부분을 일부만 *로 가린다.
     private String maskEmail(String email){
         if (email == null) return null;
         String[] parts = email.split("@");

@@ -6,3 +6,10 @@
 body {
   margin: 0;
 }
+
+/* 표(RowTable) 안쪽의 minWidth 때문에 어딘가 폭 계산이 어긋나도 페이지 자체가 옆으로
+   밀리지 않도록 최종 안전장치를 걸어둔다. 표 카드 안의 overflow-x: auto는 별개의 스크롤
+   영역이라 이 설정과 상관없이 그대로 동작한다 — 즉 "가로 스크롤은 표 안에서만" 보장용. */
+html, body {
+  overflow-x: hidden;
+}

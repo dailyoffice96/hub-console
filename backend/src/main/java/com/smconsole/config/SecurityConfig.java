@@ -63,7 +63,9 @@ public class SecurityConfig {
                     )
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/images/**").permitAll()
-                            .requestMatchers("/api/incidents/webhook").permitAll() // 2. 여기! 로그인 없이 접속 허용
+                            // 외부 시스템이 로그인 없이 장애를 등록하는 웹훅이라 인증 자체를 열어두고,
+                            // 대신 IncidentService에서 X-Webhook-Secret 값으로 호출자를 검증한다.
+                            .requestMatchers("/api/incidents/webhook").permitAll()
                             .requestMatchers("/login").permitAll()
                             // 로그인 페이지가 점검 모드 배너를 띄우려면 로그인 전에도 조회할 수 있어야 함(조회만 허용, 수정은 계속 인증 필요)
                             .requestMatchers(HttpMethod.GET, "/api/systemSettings").permitAll()
@@ -102,8 +104,7 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource(){
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:9000",
-                    "https://sm-console.vercel.app"));
+            config.setAllowedOrigins(AllowedOrigins.FRONTEND_ORIGINS);
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);

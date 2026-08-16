@@ -20,6 +20,7 @@ public class SystemSettingService {
             return all.get(0);
     }
 
+    // 점검 설정은 항상 딱 한 행만 유지한다 - 있으면 덮어쓰고, 없으면 그때 새로 만든다.
     public SystemSetting saveSetting(SystemSettingRequest request) {
         List<SystemSetting> all = systemSettingRepository.findAll();
         SystemSetting setting;

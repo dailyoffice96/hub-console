@@ -1,9 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
 import { getIncidentDetail, updateIncidentStatus } from '../api/incidentApi';
 import { formatDateTime } from '../utils/format';
+import {INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS} from '../constants/statusColors'
 
-const statusLabels = { RECEIVED: '접수', IN_PROGRESS: '처리중', DONE: '해결' };
-const severityLabels = { LOW: '낮음', MEDIUM: '중간', HIGH: '높음', CRITICAL: '크리티컬' };
 const severityColors = {
   LOW: { bg: '#d1e7dd', text: '#0f5132' },
   MEDIUM: { bg: '#fff3cd', text: '#664d03' },
@@ -58,7 +57,7 @@ function IncidentDetailModal({ incident, onClose, onUpdated }) {
                   borderColor: 'transparent'
                 }}
               >
-                {severityLabels[detail.severity]}
+                {INCIDENT_SEVERITY_LABELS[detail.severity]}
               </span>
             </div>
             <button type="button" className="btn-close shadow-none" onClick={onClose}></button>
@@ -105,7 +104,7 @@ function IncidentDetailModal({ incident, onClose, onUpdated }) {
             {detail.histories?.length > 0 ? (
               detail.histories.map(h => (
                 <li key={h.id} className="list-group-item d-flex justify-content-between align-items-center py-2 px-3 text-secondary">
-                  <span>{statusLabels[h.beforeStatus]} → {statusLabels[h.afterStatus]}</span>
+                  <span>{INCIDENT_STATUS_LABELS[h.beforeStatus]} → {INCIDENT_STATUS_LABELS[h.afterStatus]}</span>
                   <span className="text-muted small">{formatDateTime(h.changedAt)}</span>
                 </li>
               ))

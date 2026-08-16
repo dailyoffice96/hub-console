@@ -15,15 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//extends는 클래스용(이미 "완성된 동작"이 있는 걸 물려받을 때)
-//그냥 특정 페이지로 이동시키면 끝
-//로그인 성공 → 서버가 세션을 만들고, 브라우저에 "다음엔 여기로 이동해" 하고 리다이렉트 응답을 보냄
-//우리(LoginSuccessHandler)가 하는 일: 리다이렉트하기 직전에, 그 사람의 실패횟수를 0으로 리셋하는 것
-
-// implements는 인터페이스용("규칙만 있고 속은 텅 빈" 걸 우리가 직접 채울 때)
-//실패 이유도 다양하고(비번 틀림, 계정 잠김, 계정 없음 등),
-// 처리 방식도 서비스마다 워낙 다양해서 공통 기본 동작을 만들기 애매해서 인터페이스로만 규칙만 제공
-//"이미 실패로 판정 난 상황에서, 그 사람 계정의 실패횟수를 올려주는 일
+// 로그인 실패 5회째에 계정을 잠근다.
 @Component
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler{

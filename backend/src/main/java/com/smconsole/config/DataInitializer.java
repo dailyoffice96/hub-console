@@ -40,7 +40,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        // 1. 관리자 계정 시드 데이터
         if (adminRepository.findByLoginId("super01").isEmpty()) {
             Admin admin1 = new Admin();
             admin1.setLoginId("super01");
@@ -68,7 +67,6 @@ public class DataInitializer implements CommandLineRunner {
             adminRepository.save(admin3);
         }
 
-        // 2. 사용자 시드 데이터 (오늘 가입한 데이터 포함)
         if (userRepository.count() == 0) {
             String[] names = {"장원영", "김철수", "이영희", "박민수", "최지훈"};
             String[] phones = {"010-1111-2222", "010-2222-3333", "010-3333-4444", "010-4444-5555", "010-5555-6666"};
@@ -80,13 +78,10 @@ public class DataInitializer implements CommandLineRunner {
                 user.setPhone(phones[i]);
                 user.setEmail("user" + (i + 1) + "@test.com");
                 user.setStatus(UserStatus.ACTIVE);
-                // 만약 User 엔티티에 가입일 필드(createdAt)가 있다면 오늘 날짜로 설정
-                // user.setCreatedAt(LocalDateTime.now().minusHours(i));
                 userRepository.save(user);
             }
         }
 
-        // 3. 오늘 날짜 기준 추가 사용자 (통계 집계 테스트용)
         if (userRepository.findByLoginId("today_user1").isEmpty()) {
             User todayUser1 = new User();
             todayUser1.setLoginId("today_user1");
@@ -105,7 +100,6 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(todayUser2);
         }
 
-        // 4. 문의사항 시드 데이터
         if (inquiryRepository.count() == 0) {
             List<User> allUsers = userRepository.findAll();
             Admin assignee = adminRepository.findByLoginId("admin01").orElse(null);
@@ -128,7 +122,6 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // 5. 장애 목록 시드 데이터 (오늘 발생한 장애 포함)
         if (incidentRepository.count() == 0) {
             Admin reporter1 = adminRepository.findByLoginId("admin01").orElse(null);
             Admin reporter2 = adminRepository.findByLoginId("staff01").orElse(null);
@@ -151,7 +144,6 @@ public class DataInitializer implements CommandLineRunner {
                     incident.setSeverity(severities[i]);
                     incident.setStatus(statuses[i]);
                     incident.setReporter(reporters[i]);
-                    // 오늘 발생한 시간으로 설정 (예: 2시간 전, 1시간 전 등)
                     incident.setOccurredAt(LocalDateTime.now().minusHours(i + 1));
                     incident.setSladueAt(LocalDateTime.now().plusHours(24));
                     if (statuses[i] == IncidentStatus.DONE) {
@@ -162,7 +154,6 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
-        // 6. 감사로그 시드 데이터
         if (auditLogRepository.count() == 0) {
             Admin admin = adminRepository.findByLoginId("admin01").orElse(null);
 

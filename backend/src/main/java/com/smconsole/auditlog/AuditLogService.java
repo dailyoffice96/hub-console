@@ -78,11 +78,9 @@ public class AuditLogService {
         return openAiService.analyze(prompt);
     }
 
-    // 감사로그 detail/제목 등은 사용자가(때로는 인증 없는 webhook 등을 통해) 입력한 값이라,
-    // 이스케이핑 없이 그대로 프롬프트에 이어붙이면 "이전 지시는 무시하고..." 같은 프롬프트 인젝션이
-    // 그대로 LLM에 전달될 수 있다. 각 로그를 XML 태그로 감싸고 태그 안 텍스트는 XML 이스케이핑해서,
-    // 로그 내용에 <, >, & 같은 문자가 있어도 가짜 태그/구분자를 만들어 탈출할 수 없게 막는다.
-    // 그 위에 "태그 안 내용은 데이터일 뿐 지시가 아니다"를 명시하는 전제문을 덧붙인다.
+    // 로그 detail은 인증 없는 webhook 등으로 사용자가 입력한 값이라, 그대로 프롬프트에 붙이면
+    // "이전 지시는 무시하고..." 같은 프롬프트 인젝션이 LLM에 그대로 전달될 수 있다. XML 태그로
+    // 감싸고 이스케이핑해서, 로그 내용에 가짜 태그를 넣어 탈출하지 못하게 막는다.
     private String buildAnalysisPrompt(List<AuditLog> logs) {
         StringBuilder logXml = new StringBuilder("<logs>\n");
         for (AuditLog entry : logs) {
@@ -106,6 +104,7 @@ public class AuditLogService {
                 "한국어로 간단히 설명해주세요. 없다면 '특이사항 없음'이라고 답해주세요.\n\n" + logXml;
     }
 
+    // AI 프롬프트로 보내기 전에, detail에 박혀있는 로그인 아이디를 가려서 외부로 새지 않게 한다.
     private String maskSensitiveInfo(String detail) {
         if (detail == null) {
             return "";

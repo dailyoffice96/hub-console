@@ -2,6 +2,7 @@
 import { getInquiryDetail, createComment, updateStatus, assignInquiry } from '../api/inquiryApi';
 import { getAdmin } from '../api/adminApi';
 import axiosInstance from '../api/axiosInstance';
+import {INQUIRY_STATUS_LABELS, INQUIRY_STATUS_TYPELABELS} from '../constants/statusColors'
 
 const formatDateTime = (value) => {
   if (!value) return '';
@@ -10,9 +11,6 @@ const formatDateTime = (value) => {
   const [hh, mm] = timePart.split(':');
   return `${datePart} ${hh}:${mm}`;
 };
-
-const statusLabels = { WAITING: '대기', IN_PROGRESS: '처리중', DONE: '완료' };
-const typeLabels = { ACCOUNT: '계정문의', PAYMENT: '결제문의', TECHNICAL: '기술문의', SERVICE: '서비스문의', ETC: '기타' };
 
 function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
   const [detail, setDetail] = useState(null);
@@ -74,7 +72,7 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
             <div className="d-flex align-items-center gap-2">
               <h5 className="fw-bold text-dark mb-0">{detail.userName}님의 문의 - {detail.title}</h5>
               <span className="badge bg-light text-dark border px-2 py-1">
-                {typeLabels[detail.type]}
+                {INQUIRY_STATUS_TYPELABELS[detail.type]}
               </span>
             </div>
             <button type="button" className="btn-close shadow-none" onClick={onClose}></button>
@@ -83,7 +81,7 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
           <div className="card bg-light bg-opacity-25 border p-3 rounded-3 mb-4">
             <div className="row g-2 small text-secondary mb-2">
               <div className="col-6"><strong>접수일:</strong> {formatDateTime(detail.createdAt)}</div>
-              <div className="col-6"><strong>상태:</strong> {statusLabels[detail.status]}</div>
+              <div className="col-6"><strong>상태:</strong> {INQUIRY_STATUS_LABELS[detail.status]}</div>
             </div>
             <div className="pt-2 border-top text-dark">
               <strong>내용:</strong>
@@ -145,7 +143,7 @@ function InquiryDetailModal({ inquiry, onClose, onUpdated }) {
             {detail.histories?.length > 0 ? (
               detail.histories.map(h => (
                 <li key={h.id} className="list-group-item d-flex justify-content-between align-items-center py-2 px-3 text-secondary">
-                  <span>{statusLabels[h.beforeStatus]} → {statusLabels[h.afterStatus]} ({h.adminName})</span>
+                  <span>{INQUIRY_STATUS_LABELS[h.beforeStatus]} → {INQUIRY_STATUS_LABELS[h.afterStatus]} ({h.adminName})</span>
                   <span className="text-muted small">{formatDateTime(h.changedAt)}</span>
                 </li>
               ))

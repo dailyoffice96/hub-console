@@ -33,7 +33,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     Page<Inquiry> findByAssigneeName(@Param("assigneeName") String assigneeName, Pageable pageable);
 
     long countByStatus(InquiryStatus status);
-    long countByCreatedAtBetween(LocalDate start, LocalDate end);   // ← 이 줄 추가
+    long countByCreatedAtBetween(LocalDate start, LocalDate end);
 
 }
 

@@ -21,8 +21,6 @@ public class MyInfoController {
     private final AdminRepository adminRepository;
     private final AdminService adminService;
 
-    // Authentication 객체 안에는, "지금 로그인한 사람에 대한 정보"가 여러 개 들어있는데,
-    // 그중 getName()은 그 사람의 **"식별자(로그인 아이디)"를 돌려줌
     @GetMapping("/api/me")
     public ResponseEntity <MyInfoResponse> getInfo(Authentication authentication){
         String loginId = authentication.getName();

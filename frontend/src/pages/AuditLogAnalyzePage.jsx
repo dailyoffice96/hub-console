@@ -21,7 +21,6 @@ function AuditLogAnalyzePage() {
 
   return (
     <div className="container-fluid px-4 py-3">
-      {/* 상단 안내 */}
       <div className="row mx-2 mb-4">
         <div className="col-12 px-0">
           <div className="card border shadow-sm p-4 rounded-4 bg-white">
@@ -31,7 +30,6 @@ function AuditLogAnalyzePage() {
         </div>
       </div>
 
-      {/* 분석 박스 */}
       <div className="card border shadow-sm rounded-4 bg-white overflow-hidden mx-2">
         <div className="p-4 border-bottom bg-light bg-opacity-25">
           <div className="d-flex justify-content-between align-items-center">

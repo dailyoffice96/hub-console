@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import { getIncidents, getIncidentStats } from '../api/incidentApi';
+import { useState } from 'react';
+import { useIncidentList, PAGE_SIZE } from '../hooks/useIncidentList';
 import IncidentCreateModal from '../components/IncidentCreateModal';
 import IncidentDetailModal from '../components/IncidentDetailModal';
 import { formatDateTime } from '../utils/format';
-import { INCIDENT_SEVERITY_WEIGHTS, INCIDENT_STATUS_LABELS } from '../constants/statusColors';
+import {
+  INCIDENT_SEVERITY_WEIGHTS,
+  INCIDENT_STATUS_LABELS,
+  INCIDENT_SEVERITY_COLORS,
+  INCIDENT_STATUS_BADGE_COLORS,
+} from '../constants/statusColors';
 import RowTable from '../components/common/RowTable';
 import NumberBadge from '../components/common/NumberBadge';
 import StatusBadge from '../components/common/StatusBadge';
 import CompactStatGroup from '../components/stats/CompactStatGroup';
 import AlertList from '../components/common/AlertList';
 
-const severityColor = { LOW: '#94D2BD', MEDIUM: '#F9DFA0', HIGH: '#F4A261', CRITICAL: '#E63946' };
-
 // 장애 목록 행의 컬럼 비율 (헤더와 데이터 행이 동일하게 사용)
 const INCIDENT_ROW_GRID = '0.5fr 2fr 1fr 1fr 1fr 1.2fr 1.2fr';
-
-// 페이지당 행 개수 — 번호 배지 계산(page * PAGE_SIZE + index + 1)에도 그대로 씀
-const PAGE_SIZE = 10;
 
 // "등록" 버튼 — 장애 신고라는 긴급성을 살려 레드 계열 유지
 const REGISTER_BTN_COLOR = '#DC2626';
@@ -26,13 +26,6 @@ const STAT_PASTELS = {
   received: { bg: '#E1EBFE', text: '#1D3E8C' },
   inProgress: { bg: '#FEF6D8', text: '#7A5B00' },
   done: { bg: '#E3F5DE', text: '#1F5C2E' },
-};
-
-// 상태 배지 색상 (부드러운 파스텔 톤 — 통계 카드와 같은 색상군)
-const STATUS_BADGE_COLORS = {
-  RECEIVED: { bg: '#DBEAFE', text: '#1D4ED8' },
-  IN_PROGRESS: { bg: '#FEF3C7', text: '#B45309' },
-  DONE: { bg: '#DCFCE7', text: '#166534' },
 };
 
 // 리스트가 눌릴 때 페이지 전체가 아니라 표 안쪽에서만 가로 스크롤되게 하는 최소 너비
@@ -57,44 +50,15 @@ const SLACK_ALERT_ITEMS = MOCK_SLACK_NOTIFICATIONS.map((item) => ({
 }));
 
 function IncidentListPage() {
-  const [incidents, setIncidents] = useState([]);
-  const [reporterName, setReporterName] = useState("");
-  const [status, setStatus] = useState("");
-  const [severity, setSeverity] = useState("");
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  // 데이터 조회/상태는 전부 useIncidentList 훅이 들고 있고, 여기선 화면만 그린다.
+  const {
+    incidents, reporterName, setReporterName, status, setStatus, severity, setSeverity,
+    page, setPage, totalPages, stats,
+    fetchIncidents, fetchStats, handleSearch,
+  } = useIncidentList();
+
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [stats, setStats] = useState({ received: 0, inProgress: 0, done: 0 });
-
-  const fetchIncidents = () => {
-    getIncidents({ reporterName, status, severity, page, size: PAGE_SIZE })
-      .then(res => {
-        setIncidents(res.data.content || []);
-        setTotalPages(res.data.totalPages);
-      })
-      .catch(err => {
-        console.error(err);
-        setIncidents([]);
-      });
-  };
-
-  const fetchStats = () => {
-    getIncidentStats().then(res => setStats(res.data));
-  };
-
-  useEffect(() => {
-    fetchIncidents();
-  }, [page, status, severity]);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const handleSearch = () => {
-    setPage(0);
-    fetchIncidents();
-  };
 
   return (
     // d-flex flex-column + height:100% — Layout이 준 세로 공간을 그대로 받아서 아래 row가 채우게 한다.
@@ -186,7 +150,7 @@ function IncidentListPage() {
                             height: '11px',
                             borderRadius: '2px',
                             backgroundColor: i <= INCIDENT_SEVERITY_WEIGHTS[incident.severity]
-                              ? severityColor[incident.severity]
+                              ? INCIDENT_SEVERITY_COLORS[incident.severity]
                               : '#E9ECEF',
                           }}
                         />
@@ -194,7 +158,7 @@ function IncidentListPage() {
                     </div>
                   </span>
                   <span>
-                    <StatusBadge color={STATUS_BADGE_COLORS[incident.status]}>
+                    <StatusBadge color={INCIDENT_STATUS_BADGE_COLORS[incident.status]}>
                       {INCIDENT_STATUS_LABELS[incident.status]}
                     </StatusBadge>
                   </span>

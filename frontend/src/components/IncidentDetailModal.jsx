@@ -1,14 +1,11 @@
 ﻿import { useState, useEffect } from 'react';
 import { getIncidentDetail, updateIncidentStatus } from '../api/incidentApi';
 import { formatDateTime } from '../utils/format';
-import {INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS} from '../constants/statusColors'
-
-const severityColors = {
-  LOW: { bg: '#d1e7dd', text: '#0f5132' },
-  MEDIUM: { bg: '#fff3cd', text: '#664d03' },
-  HIGH: { bg: '#ffe5d0', text: '#b45309' },
-  CRITICAL: { bg: '#f8d7da', text: '#842029' }
-};
+import {
+  INCIDENT_SEVERITY_LABELS,
+  INCIDENT_STATUS_LABELS,
+  INCIDENT_SEVERITY_BADGE_COLORS,
+} from '../constants/statusColors'
 
 function IncidentDetailModal({ incident, onClose, onUpdated }) {
   const [detail, setDetail] = useState(null);
@@ -52,8 +49,8 @@ function IncidentDetailModal({ incident, onClose, onUpdated }) {
               <span
                 className="badge px-2 py-1 border"
                 style={{
-                  backgroundColor: severityColors[detail.severity]?.bg,
-                  color: severityColors[detail.severity]?.text,
+                  backgroundColor: INCIDENT_SEVERITY_BADGE_COLORS[detail.severity]?.bg,
+                  color: INCIDENT_SEVERITY_BADGE_COLORS[detail.severity]?.text,
                   borderColor: 'transparent'
                 }}
               >

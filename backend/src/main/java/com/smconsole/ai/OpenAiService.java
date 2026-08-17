@@ -21,19 +21,21 @@ public class OpenAiService {
     @Value("${openai.api.key}")
     private String apikey;
 
-    //OpenAI 정해놓은 정확한 주소. 테스트에서 로컬 서버로 리다이렉트해 타임아웃을 실제로 재현할 수
-    //있도록 상수 대신 설정값으로 뺐다(기본값은 기존과 동일한 실제 OpenAI 주소).
     @Value("${openai.api.url:https://api.openai.com/v1/chat/completions}")
     private String apiUrl;
 
-    // 타임아웃을 안 걸면 OpenAI가 응답 안 줄 때 이 스레드가 무한정 붙잡히고, 호출하는 쪽
-    // (AuditLogService)은 @Transactional이라 그동안 DB 커넥션도 같이 물고 있게 된다.
+    // Spring 컨테이너 밖에서 new OpenAiService()로 만들면 @Value가 주입되지 않으므로,
+    // 그런 경우에도 기존 동작(gpt-4o-mini)이 그대로 유지되도록 기본값을 필드에도 넣어둔다.
+    @Value("${openai.api.model:gpt-4o-mini}")
+    private String model = "gpt-4o-mini";
+
+    // 타임아웃을 안 걸면 OpenAI가 응답 안 줄 때 이 스레드가 계속 붙잡혀 있게 된다.
     private final RestTemplate restTemplate;
 
     public OpenAiService() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(3000);
-        factory.setReadTimeout(15000);   // AI 응답이라 Slack(5초)보다 여유를 둠
+        factory.setReadTimeout(15000);
         this.restTemplate = new RestTemplate(factory);
     }
 
@@ -43,7 +45,7 @@ public class OpenAiService {
         headers.setBearerAuth(apikey);
 
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-4o-mini",
+                "model", model,
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 )
@@ -69,8 +71,8 @@ public class OpenAiService {
         return extractContent(response);
     }
 
-    //OpenAI가 돌려주는 응답 구조({"choices":[{"message":{"content":"..."}}]})가 예상과 다르면
-    //(에러 응답, 빈 choices, 필드 누락 등) NPE/ClassCastException 대신 명확한 예외로 바꿔준다.
+    // OpenAI 응답 구조({"choices":[{"message":{"content":"..."}}]})가 예상과 다르면
+    // NPE 대신 어느 단계에서 틀어졌는지 알 수 있는 예외로 바꿔준다.
     private String extractContent(Map<?, ?> response) {
         if (response == null) {
             throw new AiAnalysisException(HttpStatus.BAD_GATEWAY, "AI 분석 서비스로부터 응답을 받지 못했습니다.");

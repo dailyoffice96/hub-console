@@ -15,8 +15,10 @@ export function useAdminList() {
     const [totalPages, setTotalPages] = useState(0);
     const [stats, setStats] = useState({ totalCount: 0, lockedCount: 0, superAdminCount: 0, adminCount: 0, staffCount: 0 });
 
-    const fetchAdmins = () => {
-        getAdmin({ name, role, page, size: PAGE_SIZE })
+    // targetPage를 안 넘기면 현재 page state를 쓴다. handleSearch처럼 setPage(0)과 같이
+    // 쓸 때는 state가 아직 안 바뀐 시점이라 0을 직접 넘겨줘야 그 페이지로 조회된다.
+    const fetchAdmins = (targetPage = page) => {
+        getAdmin({ name, role, page: targetPage, size: PAGE_SIZE })
             .then(res => {
                 setAdmins(res.data.content || []);
                 setTotalPages(res.data.totalPages);
@@ -45,7 +47,7 @@ export function useAdminList() {
 
     const handleSearch = () => {
         setPage(0);
-        fetchAdmins();
+        fetchAdmins(0);
     };
 
     const handleUnlock = async (id) => {

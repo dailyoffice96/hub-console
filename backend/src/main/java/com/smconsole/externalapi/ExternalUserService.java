@@ -17,8 +17,8 @@ public class ExternalUserService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void  importRandomUsers(int count) {
-        String url = "https://randomuser.me/api/?results=5&nat=kr";
+    public void importRandomUsers(int count) {
+        String url = "https://randomuser.me/api/?results=" + count + "&nat=kr";
 
         RandomUserResponse response = restTemplate.getForObject(url, RandomUserResponse.class);
 

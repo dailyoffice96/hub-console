@@ -47,7 +47,7 @@ public class IncidentController {
     }
 
     @PostMapping
-    public ResponseEntity<IncidentResponse> createIncident(@RequestBody IncidentCreateRequest request) {
+    public ResponseEntity<IncidentResponse> createIncident(@Valid @RequestBody IncidentCreateRequest request) {
         IncidentResponse incident = incidentService.createIncident(request);
         return ResponseEntity.ok(incident);
     }

@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { LuChevronDown, LuChevronUp } from 'react-icons/lu';
-import { getAuditLogs, downloadAuditLog } from '../api/auditLogApi';
-import { getDailyStats } from '../api/dailyStatsApi';
+import { useAuditLogList, PAGE_SIZE } from '../hooks/useAuditLogList';
 import { formatDateTime, formatDate, formatCompactNumber } from '../utils/format';
 import RowTable from '../components/common/RowTable';
 import NumberBadge from '../components/common/NumberBadge';
@@ -27,9 +26,6 @@ const LOG_ROW_GRID = '0.5fr 1.1fr 1.3fr 1fr 2.6fr 1.3fr';
 
 // 일별 통계 이력 목록이 이 높이를 넘으면 그 안에서만 스크롤됨 (대략 카드 3장 정도)
 const DAILY_HISTORY_MAX_HEIGHT = '320px';
-
-// 페이지당 행 개수 — 번호 배지 계산(page * PAGE_SIZE + index + 1)에도 그대로 씀
-const PAGE_SIZE = 8;
 
 // 리스트가 눌릴 때 페이지 전체가 아니라 표 안쪽에서만 가로 스크롤되게 하는 최소 너비
 const ROW_MIN_WIDTH = '760px';
@@ -64,51 +60,14 @@ function StatFooter({ title, delta, deltaGoodDirection }) {
 }
 
 function AuditLogPage() {
-    const [logs, setLogs] = useState([]);
-    const [adminName, setAdminName] = useState("");
-    const [action, setAction] = useState("");
-    const [targetType, setTargetType] = useState("");
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [dailyStats, setDailyStats] = useState([]);
+    // 데이터 조회/상태는 전부 useAuditLogList 훅이 들고 있고, 여기선 화면만 그린다.
+    const {
+        logs, adminName, setAdminName, action, setAction, targetType, setTargetType,
+        page, setPage, totalPages, dailyStats,
+        handleSearch, handleDownload,
+    } = useAuditLogList();
+
     const [showHistory, setShowHistory] = useState(false); // 이력 목록은 기본으로 접어둬서 화면을 덜 차지하게 함
-
-    const fetchLogs = () => {
-        getAuditLogs({ adminName, action, targetType, page, size: PAGE_SIZE })
-            .then(res => {
-                setLogs(res.data.content || []);
-                setTotalPages(res.data.totalPages);
-            })
-            .catch(err => {
-                console.error(err);
-                setLogs([]);
-            });
-    };
-
-    const fetchDailyStats = () => {
-        getDailyStats()
-            .then(res => {
-                const sorted = [...(res.data || [])].sort((a, b) => a.targetDate.localeCompare(b.targetDate));
-                setDailyStats(sorted);
-            })
-            .catch(err => {
-                console.error(err);
-                setDailyStats([]);
-            });
-    };
-
-    useEffect(() => {
-        fetchLogs();
-    }, [page, action, targetType]);
-
-    useEffect(() => {
-        fetchDailyStats();
-    }, []);
-
-    const handleSearch = () => {
-        setPage(0);
-        fetchLogs();
-    };
 
     const latestStats = dailyStats.length > 0 ? dailyStats[dailyStats.length - 1] : null;
     const previousStats = dailyStats.length > 1 ? dailyStats[dailyStats.length - 2] : null;
@@ -119,18 +78,6 @@ function AuditLogPage() {
     const deltaOf = (key) => (hasConsecutiveDelta ? latestStats[key] - previousStats[key] : null);
     // 최근 날짜가 맨 위로 오는 탑다운 순서. 전부 보여주는 대신 목록 자체를 스크롤로 훑어보게 한다.
     const historyStats = [...dailyStats].reverse();
-
-    const handleDownload = () => {
-        downloadAuditLog().then(res => {
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', '감사로그_목록.xlsx');
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        });
-    };
 
     return (
         // d-flex flex-column + height:100% — Layout이 준 세로 공간을 그대로 받아서, 아래 로그

@@ -16,8 +16,10 @@ export function useUserList() {
     const [totalPages, setTotalPages] = useState(0);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const fetchUsers = () => {
-        return getUser({ name, status, page, size: PAGE_SIZE })
+    // targetPage를 안 넘기면 현재 page state를 쓴다. handleSearch처럼 setPage(0)과 같이
+    // 쓸 때는 state가 아직 안 바뀐 시점이라 0을 직접 넘겨줘야 그 페이지로 조회된다.
+    const fetchUsers = (targetPage = page) => {
+        return getUser({ name, loginId, status, page: targetPage, size: PAGE_SIZE })
             .then(res => {
                 setUsers(res.data.content || []);
                 setTotalPages(res.data.totalPages);
@@ -40,11 +42,9 @@ export function useUserList() {
         fetchStats();
     }, []);
 
-    const handleSearch = async () => {
+    const handleSearch = () => {
         setPage(0);
-        const res = await getUser({ name, loginId, status, page: 0, size: PAGE_SIZE });
-        setUsers(res.data.content);
-        setTotalPages(res.data.totalPages);
+        fetchUsers(0);
     };
 
     const handleDownload = () => {

@@ -4,6 +4,7 @@ import com.smconsole.user.User;
 import com.smconsole.user.UserRepository;
 import com.smconsole.user.UserStatus;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,6 +24,7 @@ import java.util.List;
 public class UserExcelService {
 
     private final UserRepository userRepository;
+    private final DataFormatter dataFormatter = new DataFormatter();
 
     public byte[] exportToExcel() throws IOException {
         List<User> users = userRepository.findAll();
@@ -65,17 +67,19 @@ public class UserExcelService {
         Sheet sheet = workbook.getSheetAt(0);
         int rowNum = sheet.getLastRowNum();
 
-        String name = null;
-        String loginId = null;
         for (int i = 1; i <= rowNum; i++) {
             Row row = sheet.getRow(i);
+            // 중간에 빈 줄이 껴 있는 엑셀이면 그 행 자체가 null로 들어오므로 건너뛴다.
+            if (row == null) {
+                continue;
+            }
 
-            name = row.getCell(0).getStringCellValue();
-            loginId = row.getCell(1).getStringCellValue();
-            String phone = row.getCell(2).getStringCellValue();
-            String email = row.getCell(3).getStringCellValue();
+            String name = getCellValue(row, 0);
+            String loginId = getCellValue(row, 1);
+            String phone = getCellValue(row, 2);
+            String email = getCellValue(row, 3);
 
-            if (name == null || name.isBlank() || loginId == null || loginId.isBlank()) {
+            if (name.isBlank() || loginId.isBlank()) {
                 throw new IllegalArgumentException((i + 1) + "번째 행: 이름 또는 아이디를 입력해 주세요.");
             }
 
@@ -95,5 +99,11 @@ public class UserExcelService {
 
 
         return "회원 등록이 완료되었습니다.";
+    }
+
+    // 셀이 숫자/빈 셀이어도 예외 없이 문자열로 읽기 위한 헬퍼.
+    private String getCellValue(Row row, int cellIndex) {
+        var cell = row.getCell(cellIndex);
+        return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
     }
 }

@@ -29,6 +29,9 @@ public class RedisCacheConfig {
                                 new StringRedisSerializer()
                         )
                 )
+                // 캐시에 저장할 때 값의 실제 클래스 정보도 같이 저장해야, 꺼낼 때 원래 타입(예:
+                // IncidentStatsResponse)으로 복원된다. allowIfBaseType(Object.class)는 신뢰할 수
+                // 없는 클래스가 역직렬화되는 걸 막는 최소한의 안전장치다.
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(
                                 GenericJacksonJsonRedisSerializer.builder()

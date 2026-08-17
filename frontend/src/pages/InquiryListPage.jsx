@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getInquiry, getInquiryStats } from "../api/inquiryApi";
+import { useState } from 'react';
+import { useInquiryList, PAGE_SIZE } from '../hooks/useInquiryList';
 import InquiryDetailModal from '../components/InquiryDetailModal';
 import { INQUIRY_STATUS_LABELS, INQUIRY_STATUS_COLORS, INQUIRY_STATUS_TYPELABELS } from '../constants/statusColors';
 import RowTable from '../components/common/RowTable';
@@ -12,9 +12,6 @@ import { TABLE_TEXT_COLOR } from '../constants/designTokens';
 // 문의 목록 행의 컬럼 비율 (헤더와 데이터 행이 동일하게 사용)
 const INQUIRY_ROW_GRID = '0.5fr 1.2fr 2fr 1fr 1fr 1fr 1fr';
 
-// 페이지당 행 개수 — 번호 배지 계산(page * PAGE_SIZE + index + 1)에도 그대로 씀
-const PAGE_SIZE = 10;
-
 // 원래 색상(warning=대기, primary=처리중, success=완료)에 맞춘 파스텔 카드 배경 (레퍼런스 이미지 톤)
 const STAT_PASTELS = {
   waiting: { bg: '#FEF6D8', text: '#7A5B00' },
@@ -26,43 +23,14 @@ const STAT_PASTELS = {
 const ROW_MIN_WIDTH = '780px';
 
 function InquiryListPage() {
-  const [inquiries, setInquiries] = useState([]);
-  const [assigneeName, setAssigneeName] = useState("");
-  const [status, setStatus] = useState("");
-  const [type, setType] = useState("");
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  // 데이터 조회/상태는 전부 useInquiryList 훅이 들고 있고, 여기선 화면만 그린다.
+  const {
+    inquiries, assigneeName, setAssigneeName, status, setStatus, type, setType,
+    page, setPage, totalPages, stats,
+    fetchInquiry, fetchStats, handleSearch,
+  } = useInquiryList();
+
   const [selectedInquiry, setSelectedInquiry] = useState(null);
-  const [stats, setStats] = useState({ waiting: 0, inProgress: 0, done: 0 });
-
-  const fetchInquiry = () => {
-    getInquiry({ assigneeName, type, status, page, size: PAGE_SIZE })
-      .then(res => {
-        setInquiries(res.data.content || []);
-        setTotalPages(res.data.totalPages);
-      })
-      .catch(err => {
-        console.error(err);
-        setInquiries([]);
-      });
-  };
-
-  const fetchStats = () => {
-    getInquiryStats().then(res => setStats(res.data));
-  };
-
-  useEffect(() => {
-    fetchInquiry();
-  }, [page, status, type]);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const handleSearch = () => {
-    setPage(0);
-    fetchInquiry();
-  };
 
   // 담당자 미배정 건만 뽑아 공통 AlertList가 받는 형태({icon, badge, meta, ...})로 변환
   const unassigned = inquiries.filter((i) => !i.assigneeName).slice(0, 5);

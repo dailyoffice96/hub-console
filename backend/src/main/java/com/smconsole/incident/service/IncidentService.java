@@ -197,6 +197,9 @@ public class IncidentService {
         return toResponse(incident);
     }
 
+    // 문자열을 그냥 .equals()로 비교하면 앞에서부터 한 글자씩 비교하다 다르면 바로 멈추기 때문에,
+    // 걸리는 시간 차이로 시크릿 값을 한 글자씩 추측당할 수 있다(타이밍 공격). MessageDigest.isEqual은
+    // 항상 끝까지 비교해서 이 시간 차이가 안 생기게 해준다.
     private void validateWebhookSecret(String providedSecret) {
         boolean secretConfigured = webhookSecret != null && !webhookSecret.isBlank();
         boolean matches = secretConfigured

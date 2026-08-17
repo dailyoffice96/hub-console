@@ -38,7 +38,7 @@ function Header() {
         getIncidents({ page: 0, size: 100 }).then(res => {
             const today = new Date();
             const urgent = res.data.content.filter(incident => {
-                if (incident.status === 'RESOLVED') return false;
+                if (incident.status === 'DONE') return false;
                 const dueDate = new Date(incident.slaDueAt);
                 const hoursLeft = (dueDate - today) / (1000 * 60 * 60);
                 return hoursLeft <= 24;

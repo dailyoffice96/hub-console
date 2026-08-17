@@ -13,11 +13,14 @@ import {
 } from 'chart.js';
 import { getIncidents, getIncidentSeverityStats, getIncidentStats } from '../api/incidentApi';
 import { API_BASE_URL } from '../api/axiosInstance';
-import {INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_LABELS, INCIDENT_STATUS_COLORS} from '../constants/statusColors'
+import {
+  INCIDENT_SEVERITY_LABELS,
+  INCIDENT_STATUS_LABELS,
+  INCIDENT_STATUS_COLORS,
+  INCIDENT_SEVERITY_COLORS,
+} from '../constants/statusColors'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
-
-const severityColor = { CRITICAL: '#E63946', HIGH: '#F4A261', MEDIUM: '#F9DFA0', LOW: '#94D2BD' };
 
 const formatDateTime = (value) => {
   if (!value) return '-';
@@ -84,7 +87,7 @@ function IncidentMonitoringPage() {
     datasets: [
       {
         data: [severityStats.critical, severityStats.high, severityStats.medium, severityStats.low],
-        backgroundColor: [severityColor.CRITICAL, severityColor.HIGH, severityColor.MEDIUM, severityColor.LOW],
+        backgroundColor: [INCIDENT_SEVERITY_COLORS.CRITICAL, INCIDENT_SEVERITY_COLORS.HIGH, INCIDENT_SEVERITY_COLORS.MEDIUM, INCIDENT_SEVERITY_COLORS.LOW],
         borderWidth: 0,
       },
     ],
@@ -142,7 +145,7 @@ function IncidentMonitoringPage() {
                       <span style={{ fontSize: '14px', fontWeight: '600' }}>
                         <span className="me-2" style={{
                           display: 'inline-block', width: 9, height: 9, borderRadius: '50%',
-                          backgroundColor: severityColor[key.toUpperCase()]
+                          backgroundColor: INCIDENT_SEVERITY_COLORS[key.toUpperCase()]
                         }}></span>
                         {INCIDENT_SEVERITY_LABELS[key.toUpperCase()]}
                       </span>
@@ -192,7 +195,7 @@ function IncidentMonitoringPage() {
                 <li key={incident.id} className="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-bottom">
                   <div>
                     <div className="d-flex align-items-center mb-1">
-                      <span className="badge me-2" style={{ backgroundColor: severityColor[incident.severity] }}>
+                      <span className="badge me-2" style={{ backgroundColor: INCIDENT_SEVERITY_COLORS[incident.severity] }}>
                         {INCIDENT_SEVERITY_LABELS[incident.severity]}
                       </span>
                       <span className="fw-semibold text-dark">{incident.title}</span>

@@ -1,0 +1,35 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1787025995707,83,1. Login (admin01),200,,"5 Admins - Same Inquiry, Same Version 1-2",,true,,449,231,5,5,http://localhost:9000/login,83,0,15
+1787025995707,83,1. Login (staff01),200,,"5 Admins - Same Inquiry, Same Version 1-1",,true,,449,231,5,5,http://localhost:9000/login,83,0,15
+1787025995707,83,1. Login (super01),200,,"5 Admins - Same Inquiry, Same Version 1-4",,true,,449,231,5,5,http://localhost:9000/login,83,0,15
+1787025995707,83,1. Login (admin01),200,,"5 Admins - Same Inquiry, Same Version 1-5",,true,,449,231,5,5,http://localhost:9000/login,83,0,15
+1787025995707,83,1. Login (super01),200,,"5 Admins - Same Inquiry, Same Version 1-3",,true,,449,231,5,5,http://localhost:9000/login,83,0,15
+1787025995795,94,2. PUT /api/inquiries/1/status (version=2),200,,"5 Admins - Same Inquiry, Same Version 1-3",text,true,,669,275,5,5,http://localhost:9000/api/inquiries/1/status,93,0,1
+1787025995795,343,2. PUT /api/inquiries/1/status (version=2),500,,"5 Admins - Same Inquiry, Same Version 1-1",text,false,"Test failed: code expected to equal /
+
+****** received  : [[[5]]]00
+
+****** comparison: [[[2]]]00
+
+/",453,275,4,4,http://localhost:9000/api/inquiries/1/status,342,0,1
+1787025995795,343,2. PUT /api/inquiries/1/status (version=2),500,,"5 Admins - Same Inquiry, Same Version 1-4",text,false,"Test failed: code expected to equal /
+
+****** received  : [[[5]]]00
+
+****** comparison: [[[2]]]00
+
+/",453,275,4,4,http://localhost:9000/api/inquiries/1/status,342,0,1
+1787025995795,343,2. PUT /api/inquiries/1/status (version=2),500,,"5 Admins - Same Inquiry, Same Version 1-5",text,false,"Test failed: code expected to equal /
+
+****** received  : [[[5]]]00
+
+****** comparison: [[[2]]]00
+
+/",453,275,4,4,http://localhost:9000/api/inquiries/1/status,342,0,1
+1787025995795,343,2. PUT /api/inquiries/1/status (version=2),500,,"5 Admins - Same Inquiry, Same Version 1-2",text,false,"Test failed: code expected to equal /
+
+****** received  : [[[5]]]00
+
+****** comparison: [[[2]]]00
+
+/",453,275,4,4,http://localhost:9000/api/inquiries/1/status,342,0,1

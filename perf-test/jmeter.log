@@ -1,0 +1,20 @@
+2026-08-18 14:25:37,889 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-08-18 14:25:37,900 INFO o.a.j.JMeter: Loading user properties from: D:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-08-18 14:25:37,901 INFO o.a.j.JMeter: Loading system properties from: D:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: Version 5.6.3
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: java.version=21.0.10
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: os.name=Windows 11
+2026-08-18 14:25:37,906 INFO o.a.j.JMeter: os.arch=amd64
+2026-08-18 14:25:37,907 INFO o.a.j.JMeter: os.version=10.0
+2026-08-18 14:25:37,907 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-08-18 14:25:37,907 INFO o.a.j.JMeter: java.awt.headless=null
+2026-08-18 14:25:37,907 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-08-18 14:25:37,907 INFO o.a.j.JMeter: Available Processors =24
+2026-08-18 14:25:37,913 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-08-18 14:25:37,914 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-08-18 14:25:37,914 INFO o.a.j.JMeter: JMeterHome=D:\tools\apache-jmeter-5.6.3
+2026-08-18 14:25:37,914 INFO o.a.j.JMeter: user.dir  =D:\sm-console\perf-test
+2026-08-18 14:25:37,914 INFO o.a.j.JMeter: PWD       =D:\sm-console\perf-test
+2026-08-18 14:25:42,866 INFO o.a.j.JMeter: IP: 192.168.56.1 Name: ICT02-15 FullName: ICT02-15

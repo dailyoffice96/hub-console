@@ -1,0 +1,205 @@
+2026-08-18 14:32:26,703 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-08-18 14:32:26,714 INFO o.a.j.JMeter: Loading user properties from: D:\tools\apache-jmeter-5.6.3\bin\user.properties
+2026-08-18 14:32:26,715 INFO o.a.j.JMeter: Loading system properties from: D:\tools\apache-jmeter-5.6.3\bin\system.properties
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: Version 5.6.3
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: java.version=21.0.10
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: os.name=Windows 11
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: os.arch=amd64
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: os.version=10.0
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: java.awt.headless=true
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-08-18 14:32:26,718 INFO o.a.j.JMeter: Available Processors =24
+2026-08-18 14:32:26,722 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-08-18 14:32:26,723 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-08-18 14:32:26,723 INFO o.a.j.JMeter: JMeterHome=D:\tools\apache-jmeter-5.6.3
+2026-08-18 14:32:26,723 INFO o.a.j.JMeter: user.dir  =D:\sm-console\perf-test
+2026-08-18 14:32:26,723 INFO o.a.j.JMeter: PWD       =D:\sm-console\perf-test
+2026-08-18 14:32:31,672 INFO o.a.j.JMeter: IP: 192.168.56.1 Name: ICT02-15 FullName: ICT02-15
+2026-08-18 14:32:31,689 INFO o.a.j.s.FileServer: Default base='D:\sm-console\perf-test'
+2026-08-18 14:32:31,691 INFO o.a.j.s.FileServer: Set new base='D:\sm-console\perf-test'
+2026-08-18 14:32:31,793 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-08-18 14:32:31,812 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-08-18 14:32:31,813 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-08-18 14:32:31,815 INFO o.a.j.s.SaveService: Loading file: 02-realtime-stats.jmx
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-08-18 14:32:31,849 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-08-18 14:32:31,867 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-08-18 14:32:31,880 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-08-18 14:32:31,881 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-08-18 14:32:31,881 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-08-18 14:32:31,884 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-08-18 14:32:31,884 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-08-18 14:32:31,919 INFO o.a.j.JMeter: Running test (1787031151919)
+2026-08-18 14:32:31,927 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : 50 Users - Realtime Stats
+2026-08-18 14:32:31,927 INFO o.a.j.e.StandardJMeterEngine: Starting 50 threads for group 50 Users - Realtime Stats.
+2026-08-18 14:32:31,927 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-08-18 14:32:31,927 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=50 ramp-up=10 delayedStart=false
+2026-08-18 14:32:31,933 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-1
+2026-08-18 14:32:31,945 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-08-18 14:32:31,945 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-08-18 14:32:31,949 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = ICT02-15
+2026-08-18 14:32:31,952 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-08-18 14:32:31,953 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-08-18 14:32:31,953 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-08-18 14:32:31,953 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-08-18 14:32:31,954 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-08-18 14:32:32,081 INFO o.a.j.r.Summariser: summary +      1 in 00:00:00 =    6.2/s Avg:    78 Min:    78 Max:    78 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-08-18 14:32:32,117 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-1
+2026-08-18 14:32:32,117 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-1
+2026-08-18 14:32:32,130 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-2
+2026-08-18 14:32:32,226 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-2
+2026-08-18 14:32:32,227 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-2
+2026-08-18 14:32:32,330 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-3
+2026-08-18 14:32:32,418 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-3
+2026-08-18 14:32:32,418 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-3
+2026-08-18 14:32:32,531 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-4
+2026-08-18 14:32:32,621 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-4
+2026-08-18 14:32:32,621 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-4
+2026-08-18 14:32:32,731 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-5
+2026-08-18 14:32:32,824 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-5
+2026-08-18 14:32:32,824 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-5
+2026-08-18 14:32:32,929 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-6
+2026-08-18 14:32:33,021 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-6
+2026-08-18 14:32:33,021 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-6
+2026-08-18 14:32:33,128 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-7
+2026-08-18 14:32:33,211 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-7
+2026-08-18 14:32:33,211 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-7
+2026-08-18 14:32:33,329 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-8
+2026-08-18 14:32:33,418 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-8
+2026-08-18 14:32:33,418 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-8
+2026-08-18 14:32:33,529 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-9
+2026-08-18 14:32:33,611 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-9
+2026-08-18 14:32:33,611 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-9
+2026-08-18 14:32:33,729 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-10
+2026-08-18 14:32:33,818 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-10
+2026-08-18 14:32:33,818 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-10
+2026-08-18 14:32:33,928 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-11
+2026-08-18 14:32:34,017 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-11
+2026-08-18 14:32:34,017 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-11
+2026-08-18 14:32:34,129 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-12
+2026-08-18 14:32:34,217 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-12
+2026-08-18 14:32:34,217 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-12
+2026-08-18 14:32:34,328 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-13
+2026-08-18 14:32:34,415 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-13
+2026-08-18 14:32:34,416 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-13
+2026-08-18 14:32:34,527 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-14
+2026-08-18 14:32:34,613 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-14
+2026-08-18 14:32:34,613 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-14
+2026-08-18 14:32:34,730 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-15
+2026-08-18 14:32:34,820 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-15
+2026-08-18 14:32:34,820 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-15
+2026-08-18 14:32:34,929 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-16
+2026-08-18 14:32:35,014 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-16
+2026-08-18 14:32:35,014 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-16
+2026-08-18 14:32:35,134 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-17
+2026-08-18 14:32:35,216 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-17
+2026-08-18 14:32:35,216 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-17
+2026-08-18 14:32:35,334 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-18
+2026-08-18 14:32:35,421 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-18
+2026-08-18 14:32:35,421 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-18
+2026-08-18 14:32:35,537 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-19
+2026-08-18 14:32:35,625 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-19
+2026-08-18 14:32:35,625 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-19
+2026-08-18 14:32:35,728 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-20
+2026-08-18 14:32:35,809 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-20
+2026-08-18 14:32:35,809 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-20
+2026-08-18 14:32:35,929 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-21
+2026-08-18 14:32:36,007 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-21
+2026-08-18 14:32:36,008 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-21
+2026-08-18 14:32:36,128 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-22
+2026-08-18 14:32:36,209 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-22
+2026-08-18 14:32:36,209 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-22
+2026-08-18 14:32:36,327 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-23
+2026-08-18 14:32:36,416 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-23
+2026-08-18 14:32:36,416 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-23
+2026-08-18 14:32:36,528 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-24
+2026-08-18 14:32:36,616 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-24
+2026-08-18 14:32:36,616 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-24
+2026-08-18 14:32:36,728 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-25
+2026-08-18 14:32:36,818 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-25
+2026-08-18 14:32:36,818 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-25
+2026-08-18 14:32:36,928 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-26
+2026-08-18 14:32:37,012 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-26
+2026-08-18 14:32:37,012 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-26
+2026-08-18 14:32:37,127 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-27
+2026-08-18 14:32:37,205 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-27
+2026-08-18 14:32:37,205 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-27
+2026-08-18 14:32:37,327 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-28
+2026-08-18 14:32:37,414 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-28
+2026-08-18 14:32:37,414 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-28
+2026-08-18 14:32:37,529 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-29
+2026-08-18 14:32:37,612 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-29
+2026-08-18 14:32:37,613 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-29
+2026-08-18 14:32:37,728 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-30
+2026-08-18 14:32:37,814 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-30
+2026-08-18 14:32:37,814 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-30
+2026-08-18 14:32:37,928 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-31
+2026-08-18 14:32:38,011 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-31
+2026-08-18 14:32:38,011 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-31
+2026-08-18 14:32:38,128 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-32
+2026-08-18 14:32:38,207 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-32
+2026-08-18 14:32:38,207 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-32
+2026-08-18 14:32:38,328 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-33
+2026-08-18 14:32:38,416 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-33
+2026-08-18 14:32:38,416 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-33
+2026-08-18 14:32:38,528 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-34
+2026-08-18 14:32:38,607 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-34
+2026-08-18 14:32:38,607 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-34
+2026-08-18 14:32:38,727 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-35
+2026-08-18 14:32:38,816 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-35
+2026-08-18 14:32:38,817 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-35
+2026-08-18 14:32:38,927 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-36
+2026-08-18 14:32:39,008 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-36
+2026-08-18 14:32:39,008 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-36
+2026-08-18 14:32:39,128 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-37
+2026-08-18 14:32:39,207 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-37
+2026-08-18 14:32:39,207 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-37
+2026-08-18 14:32:39,328 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-38
+2026-08-18 14:32:39,414 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-38
+2026-08-18 14:32:39,414 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-38
+2026-08-18 14:32:39,527 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-39
+2026-08-18 14:32:39,616 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-39
+2026-08-18 14:32:39,616 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-39
+2026-08-18 14:32:39,728 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-40
+2026-08-18 14:32:39,807 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-40
+2026-08-18 14:32:39,807 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-40
+2026-08-18 14:32:39,927 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-41
+2026-08-18 14:32:40,006 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-41
+2026-08-18 14:32:40,006 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-41
+2026-08-18 14:32:40,127 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-42
+2026-08-18 14:32:40,207 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-42
+2026-08-18 14:32:40,208 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-42
+2026-08-18 14:32:40,340 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-43
+2026-08-18 14:32:40,426 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-43
+2026-08-18 14:32:40,426 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-43
+2026-08-18 14:32:40,528 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-44
+2026-08-18 14:32:40,613 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-44
+2026-08-18 14:32:40,613 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-44
+2026-08-18 14:32:40,727 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-45
+2026-08-18 14:32:40,814 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-45
+2026-08-18 14:32:40,814 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-45
+2026-08-18 14:32:40,928 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-46
+2026-08-18 14:32:41,013 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-46
+2026-08-18 14:32:41,013 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-46
+2026-08-18 14:32:41,129 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-47
+2026-08-18 14:32:41,215 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-47
+2026-08-18 14:32:41,215 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-47
+2026-08-18 14:32:41,328 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-48
+2026-08-18 14:32:41,409 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-48
+2026-08-18 14:32:41,409 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-48
+2026-08-18 14:32:41,527 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-49
+2026-08-18 14:32:41,622 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-49
+2026-08-18 14:32:41,622 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-49
+2026-08-18 14:32:41,727 INFO o.a.j.t.JMeterThread: Thread started: 50 Users - Realtime Stats 1-50
+2026-08-18 14:32:41,810 INFO o.a.j.t.JMeterThread: Thread is done: 50 Users - Realtime Stats 1-50
+2026-08-18 14:32:41,810 INFO o.a.j.t.JMeterThread: Thread finished: 50 Users - Realtime Stats 1-50
+2026-08-18 14:32:41,810 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-08-18 14:32:41,811 INFO o.a.j.r.Summariser: summary +    549 in 00:00:10 =   56.4/s Avg:     7 Min:     1 Max:    75 Err:     0 (0.00%) Active: 0 Started: 50 Finished: 50
+2026-08-18 14:32:41,811 INFO o.a.j.r.Summariser: summary =    550 in 00:00:10 =   55.6/s Avg:     7 Min:     1 Max:    78 Err:     0 (0.00%)

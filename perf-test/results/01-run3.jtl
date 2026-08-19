@@ -1,0 +1,11 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1787026566228,89,1. Login (staff01),200,,"5 Admins - Same Inquiry, Same Version 1-3",,true,,449,231,5,5,http://localhost:9000/login,88,0,17
+1787026566228,89,1. Login (super01),200,,"5 Admins - Same Inquiry, Same Version 1-2",,true,,449,231,5,5,http://localhost:9000/login,88,0,17
+1787026566228,89,1. Login (super01),200,,"5 Admins - Same Inquiry, Same Version 1-5",,true,,449,231,5,5,http://localhost:9000/login,88,0,17
+1787026566228,89,1. Login (admin01),200,,"5 Admins - Same Inquiry, Same Version 1-4",,true,,449,231,5,5,http://localhost:9000/login,88,0,17
+1787026566228,89,1. Login (admin01),200,,"5 Admins - Same Inquiry, Same Version 1-1",,true,,449,231,5,5,http://localhost:9000/login,88,0,17
+1787026566319,38,2. PUT /api/inquiries/4/status (version=1),200,,"5 Admins - Same Inquiry, Same Version 1-2",text,true,,693,268,5,5,http://localhost:9000/api/inquiries/4/status,37,0,1
+1787026566319,38,2. PUT /api/inquiries/4/status (version=1),500,,"5 Admins - Same Inquiry, Same Version 1-5",text,false,,453,268,5,5,http://localhost:9000/api/inquiries/4/status,37,0,1
+1787026566319,38,2. PUT /api/inquiries/4/status (version=1),500,,"5 Admins - Same Inquiry, Same Version 1-4",text,false,,453,268,5,5,http://localhost:9000/api/inquiries/4/status,37,0,1
+1787026566319,38,2. PUT /api/inquiries/4/status (version=1),500,,"5 Admins - Same Inquiry, Same Version 1-1",text,false,,453,268,5,5,http://localhost:9000/api/inquiries/4/status,37,0,1
+1787026566319,38,2. PUT /api/inquiries/4/status (version=1),500,,"5 Admins - Same Inquiry, Same Version 1-3",text,false,,453,268,5,5,http://localhost:9000/api/inquiries/4/status,37,0,1

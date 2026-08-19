@@ -1,0 +1,433 @@
+<title>SM Console Load Test</title>
+<style>
+  .viz-root{
+    color-scheme: light;
+    --page:            #f9f9f7;
+    --surface-1:       #fcfcfb;
+    --surface-2:       #f3f2ee;
+    --text-primary:    #0b0b0b;
+    --text-secondary:  #52514e;
+    --text-muted:      #898781;
+    --gridline:        #e1e0d9;
+    --baseline:        #c3c2b7;
+    --border:          rgba(11,11,11,0.10);
+    --series-before:   #2a78d6; /* realtime aggregation */
+    --series-after:    #eb6834; /* snapshot table */
+    --good:            #0ca30c;
+    --warning:         #fab219;
+    --critical:        #d03b3b;
+    --good-wash:       #0ca30c1a;
+    --critical-wash:   #d03b3b17;
+    --warning-wash:    #fab21917;
+    --before-wash:     #2a78d61c;
+    --after-wash:      #eb68341c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .viz-root{
+      color-scheme: dark;
+      --page:            #0d0d0d;
+      --surface-1:       #1a1a19;
+      --surface-2:       #201f1d;
+      --text-primary:    #ffffff;
+      --text-secondary:  #c3c2b7;
+      --text-muted:      #8f8d87;
+      --gridline:        #2c2c2a;
+      --baseline:        #3c3c39;
+      --border:          rgba(255,255,255,0.12);
+      --series-before:   #3987e5;
+      --series-after:    #d95926;
+      --good:            #0ca30c;
+      --warning:         #fab219;
+      --critical:        #e66767;
+      --good-wash:       #0ca30c26;
+      --critical-wash:   #e6676722;
+      --warning-wash:    #fab21922;
+      --before-wash:     #3987e526;
+      --after-wash:      #d9592626;
+    }
+  }
+  :root[data-theme="dark"] .viz-root{
+    color-scheme: dark;
+    --page:            #0d0d0d;
+    --surface-1:       #1a1a19;
+    --surface-2:       #201f1d;
+    --text-primary:    #ffffff;
+    --text-secondary:  #c3c2b7;
+    --text-muted:      #8f8d87;
+    --gridline:        #2c2c2a;
+    --baseline:        #3c3c39;
+    --border:          rgba(255,255,255,0.12);
+    --series-before:   #3987e5;
+    --series-after:    #d95926;
+    --good:            #0ca30c;
+    --warning:         #fab219;
+    --critical:        #e66767;
+    --good-wash:       #0ca30c26;
+    --critical-wash:   #e6676722;
+    --warning-wash:    #fab21922;
+    --before-wash:     #3987e526;
+    --after-wash:      #d9592626;
+  }
+
+  .viz-root{
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding: 48px 20px 80px;
+    display: flex;
+    justify-content: center;
+  }
+  .mono{ font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+  .page{ width: 100%; max-width: 980px; display: flex; flex-direction: column; gap: 40px; }
+
+  /* ---------- header ---------- */
+  .eyebrow{
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .dot{ width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+  h1{
+    font-size: 34px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2;
+    text-wrap: balance; margin: 10px 0 6px;
+  }
+  .lede{ font-size: 16px; color: var(--text-secondary); max-width: 62ch; line-height: 1.6; }
+  .meta-row{
+    display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px;
+    font-size: 13px; color: var(--text-muted);
+  }
+  .meta-row b{ color: var(--text-secondary); font-weight: 600; }
+
+  /* ---------- verdict tiles ---------- */
+  .tiles{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .tile{
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .chip{
+    align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: 0.03em;
+    padding: 3px 9px; border-radius: 999px; text-transform: uppercase;
+  }
+  .chip.critical{ background: var(--critical-wash); color: var(--critical); }
+  .chip.warning{ background: var(--warning-wash); color: #9a6a00; }
+  :root:not([data-theme="light"]) .chip.warning,
+  [data-theme="dark"] .chip.warning{ color: var(--warning); }
+  .chip.good{ background: var(--good-wash); color: var(--good); }
+  .tile .num{ font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+  .tile .cap{ font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ---------- panel ---------- */
+  .panel{
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 28px 26px;
+  }
+  .panel-head{ display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+  .panel-num{ font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-muted); }
+  h2{ font-size: 20px; font-weight: 750; margin: 2px 0 6px; letter-spacing: -0.005em; }
+  .panel-desc{ font-size: 14px; color: var(--text-secondary); line-height: 1.6; max-width: 68ch; }
+  .config-row{
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-bottom: 22px;
+  }
+  .pill{
+    font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-secondary);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 9px;
+  }
+
+  /* ---------- legend ---------- */
+  .legend{ display: flex; gap: 18px; font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+  .legend span{ display: inline-flex; align-items: center; gap: 7px; }
+  .legend i{ width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* ---------- grouped bar (test 1) ---------- */
+  .chart1{ display: flex; gap: 34px; align-items: flex-end; padding: 0 6px; }
+  .runcol{ display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bars{ display: flex; align-items: flex-end; gap: 3px; height: 150px; position: relative; }
+  .bars::before{
+    content: ""; position: absolute; left: -14px; right: -14px; bottom: 0;
+    border-top: 1px solid var(--baseline);
+  }
+  .bar{
+    width: 22px; border-radius: 4px 4px 0 0; position: relative;
+    display: flex; justify-content: center;
+  }
+  .bar .v{
+    position: absolute; top: -20px; font-size: 12px; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--text-primary);
+  }
+  .runlabel{ font-size: 12px; color: var(--text-muted); font-family: ui-monospace, monospace; }
+  .gridwrap{ position: relative; }
+  .ghost-grid{
+    position: absolute; inset: 0; display: flex; flex-direction: column-reverse; justify-content: space-between;
+    pointer-events: none;
+  }
+
+  /* ---------- test 2 mini bars ---------- */
+  .metric-row{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 6px; }
+  .metric-card{ display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .metric-title{ font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .metric-bars{ display: flex; align-items: flex-end; gap: 10px; height: 130px; position: relative; }
+  .metric-bars::before{
+    content: ""; position: absolute; left: -10px; right: -10px; bottom: 0; border-top: 1px solid var(--baseline);
+  }
+  .mbar{ width: 34px; border-radius: 4px 4px 0 0; position: relative; }
+  .mbar .v{
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .metric-note{ font-size: 11.5px; color: var(--text-muted); }
+
+  .callout{
+    margin-top: 22px; border-radius: 10px; padding: 16px 18px; font-size: 13.5px; line-height: 1.65;
+    border: 1px solid var(--border);
+  }
+  .callout.critical{ background: var(--critical-wash); }
+  .callout.neutral{ background: var(--surface-2); }
+  .callout b{ font-weight: 700; }
+  .callout .head{
+    display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 6px; font-size: 13.5px;
+  }
+  .callout.critical .head{ color: var(--critical); }
+  .callout.neutral .head{ color: var(--text-primary); }
+  .callout code{
+    font-family: ui-monospace, monospace; background: var(--surface-1); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 4px; font-size: 12.5px;
+  }
+  .callout.critical code{ background: var(--surface-1); }
+
+  /* ---------- run table ---------- */
+  table{ width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 13px; }
+  th, td{ text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); }
+  th{ color: var(--text-muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td.num{ font-variant-numeric: tabular-nums; font-family: ui-monospace, monospace; font-size: 12.5px; }
+  tr:last-child td{ border-bottom: none; }
+
+  /* ---------- test 3 stat tiles ---------- */
+  .stat-row{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 6px; }
+  .stat{
+    background: var(--surface-2); border-radius: 8px; padding: 14px 14px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat .label{ font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .value{ font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .stat .value small{ font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+
+  footer{
+    border-top: 1px solid var(--border); padding-top: 22px; margin-top: 4px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  footer .files{ font-family: ui-monospace, monospace; font-size: 12.5px; color: var(--text-secondary); line-height: 1.9; }
+  footer .cmd{
+    font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-secondary);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    overflow-x: auto; white-space: pre;
+  }
+  footer .fine{ font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+
+  @media (max-width: 720px){
+    .tiles{ grid-template-columns: 1fr; }
+    .metric-row{ grid-template-columns: 1fr; }
+    .stat-row{ grid-template-columns: repeat(2, 1fr); }
+    .chart1{ flex-wrap: wrap; }
+  }
+</style>
+
+<div class="viz-root">
+<div class="page">
+
+  <div>
+    <div class="eyebrow"><span class="dot"></span>SM Console · Backend Load Test · 2026-08-18</div>
+    <h1>부하 테스트 3건, 그리고 예상을 벗어난 결과 하나</h1>
+    <p class="lede">JMeter 5.6.3 CLI 모드로 로컬 환경(<span class="mono">localhost:9000</span>)에서 세 가지 시나리오를 실행했다. 낙관적 락 동시성, 실시간 집계 대 스냅샷 조회 성능, 웹훅 수신 부하. 세 번째는 완전히 안정적이었고, 두 번째는 현재 데이터 규모에서 유의미한 차이가 없었으며, 첫 번째에서는 설계 의도와 다른 실패 양상이 재현됐다.</p>
+    <div class="meta-row">
+      <span><b>도구</b> Apache JMeter 5.6.3 (non-GUI)</span>
+      <span><b>DB</b> MySQL 8.0 / InnoDB, REPEATABLE READ</span>
+      <span><b>인증</b> 세션 쿠키 (JSESSIONID)</span>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile">
+      <span class="chip critical">예상과 다름</span>
+      <div class="num">3 / 15</div>
+      <div class="cap">동시 수정 요청 성공(20%) — 나머지 12건은 예상했던 409가 아니라 <b>500</b> (MySQL 데드락), 3회 반복 모두 재현</div>
+    </div>
+    <div class="tile">
+      <span class="chip warning">차이 없음</span>
+      <div class="num">2ms ≈ 2ms</div>
+      <div class="cap">실시간 집계 vs 스냅샷 조회 — 인덱스가 있어 현재 데이터량에서는 두 방식이 사실상 동일한 응답속도</div>
+    </div>
+    <div class="tile">
+      <span class="chip good">안정</span>
+      <div class="num">0.00%</div>
+      <div class="cap">웹훅 150건 동시 유입, 에러 0건 — 평균 10ms, 최대 134ms로 전량 정상 처리</div>
+    </div>
+  </div>
+
+  <!-- ===================== PANEL 1 ===================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-num">TEST 01</div>
+        <h2>낙관적 락 동시성 — 같은 문의, 같은 버전, 5명이 동시에</h2>
+      </div>
+    </div>
+    <p class="panel-desc">
+      <code class="mono" style="font-size:12.5px">PUT /api/inquiries/{id}/status</code> 를 5명의 관리자 계정이 완전히 동일한 순간에 호출하도록 Synchronizing Timer로 묶었다. 재현성을 확인하기 위해 서로 다른 문의 3건에 대해 반복했다.
+    </p>
+    <div class="config-row">
+      <span class="pill">5 threads</span>
+      <span class="pill">ramp-up 0s</span>
+      <span class="pill">Synchronizing Timer</span>
+      <span class="pill">3 runs × 5 requests</span>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--good)"></i>200 성공</span>
+      <span><i style="background:var(--critical)"></i>500 오류 (기대했던 409 아님)</span>
+    </div>
+
+    <div class="chart1">
+      <div class="runcol">
+        <div class="bars">
+          <div class="bar" style="height:28px; background:var(--good)"><span class="v">1</span></div>
+          <div class="bar" style="height:112px; background:var(--critical)"><span class="v">4</span></div>
+        </div>
+        <div class="runlabel">run 1 · id=1</div>
+      </div>
+      <div class="runcol">
+        <div class="bars">
+          <div class="bar" style="height:28px; background:var(--good)"><span class="v">1</span></div>
+          <div class="bar" style="height:112px; background:var(--critical)"><span class="v">4</span></div>
+        </div>
+        <div class="runlabel">run 2 · id=2</div>
+      </div>
+      <div class="runcol">
+        <div class="bars">
+          <div class="bar" style="height:28px; background:var(--good)"><span class="v">1</span></div>
+          <div class="bar" style="height:112px; background:var(--critical)"><span class="v">4</span></div>
+        </div>
+        <div class="runlabel">run 3 · id=4</div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Run</th><th>대상</th><th>요청</th><th>200</th><th>500</th><th>409</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">inquiry #1, version=2</td><td class="num">5</td><td class="num">1</td><td class="num">4</td><td class="num">0</td></tr>
+        <tr><td>2</td><td class="num">inquiry #2, version=2</td><td class="num">5</td><td class="num">1</td><td class="num">4</td><td class="num">0</td></tr>
+        <tr><td>3</td><td class="num">inquiry #4, version=1</td><td class="num">5</td><td class="num">1</td><td class="num">4</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout critical">
+      <div class="head">⚠ 발견 — 409가 아니라 500이 난다</div>
+      설계상 두 번째 관리자부터는 <code>다른 관리자가 이미 수정했습니다</code> 라는 409 응답을 받아야 한다. 하지만 완전 동시 요청 12건 전부 <code>500 Internal Server Error</code>로 응답했다. 백엔드 로그를 보면 원인은 <code>CannotAcquireLockException: Deadlock found when trying to get lock</code> — 5개의 UPDATE가 동시에 같은 행을 잠그려다 InnoDB 데드락이 발생한 것이다. <code>GlobalExceptionHandler</code>는 <code>ObjectOptimisticLockingFailureException</code>과 <code>IllegalStateException</code>만 409로 매핑해 두어서, 데드락 예외는 최하단 500 핸들러로 떨어진다.
+    </div>
+  </div>
+
+  <!-- ===================== PANEL 2 ===================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-num">TEST 02</div>
+        <h2>실시간 집계 vs 스냅샷 조회 — 50명 동시 사용자, 500 요청</h2>
+      </div>
+    </div>
+    <p class="panel-desc">
+      개선 전은 요청마다 COUNT 쿼리를 다시 실행하는 <code class="mono" style="font-size:12.5px">GET /api/incidents/stats/severity</code>, 개선 후는 배치로 미리 집계해 둔 <code class="mono" style="font-size:12.5px">GET /api/dailyStats</code> 스냅샷 테이블 조회다.
+    </p>
+    <div class="config-row">
+      <span class="pill">50 users</span>
+      <span class="pill">ramp-up 10s</span>
+      <span class="pill">loop ×10</span>
+      <span class="pill">500 req / API</span>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--series-before)"></i>실시간 집계 (개선 전)</span>
+      <span><i style="background:var(--series-after)"></i>스냅샷 조회 (개선 후)</span>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-card">
+        <div class="metric-bars">
+          <div class="mbar" style="height:91px; background:var(--series-before)"><span class="v">1.9</span></div>
+          <div class="mbar" style="height:101px; background:var(--series-after)"><span class="v">2.1</span></div>
+        </div>
+        <div class="metric-title">Average (ms)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-bars">
+          <div class="mbar" style="height:90px; background:var(--series-before)"><span class="v">3</span></div>
+          <div class="mbar" style="height:90px; background:var(--series-after)"><span class="v">3</span></div>
+        </div>
+        <div class="metric-title">90% Line (ms)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-bars">
+          <div class="mbar" style="height:103px; background:var(--series-before)"><span class="v">51.4</span></div>
+          <div class="mbar" style="height:104px; background:var(--series-after)"><span class="v">51.7</span></div>
+        </div>
+        <div class="metric-title">Throughput (req/s)</div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>지표</th><th>실시간 집계</th><th>스냅샷 조회</th><th>개선율</th></tr></thead>
+      <tbody>
+        <tr><td>Average</td><td class="num">1.9 ms</td><td class="num">2.1 ms</td><td class="num">−11%</td></tr>
+        <tr><td>90% Line</td><td class="num">3 ms</td><td class="num">3 ms</td><td class="num">0%</td></tr>
+        <tr><td>Throughput</td><td class="num">51.39 req/s</td><td class="num">51.70 req/s</td><td class="num">+0.6%</td></tr>
+        <tr><td>Error %</td><td class="num">0.00%</td><td class="num">0.00%</td><td class="num">–</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout neutral">
+      <div class="head">있는 그대로: 지금은 차이가 거의 없다</div>
+      <code>incidents.severity</code>에 인덱스가 걸려 있어 COUNT 쿼리 자체가 이미 1~5ms대다. 장애 약 150건, 일일 통계 30행 규모의 로컬 데이터로는 두 방식이 통계적으로 구분되지 않는다. 스냅샷 테이블의 실익은 보통 (a) 여러 테이블을 JOIN하는 복잡한 집계, (b) 인덱스 없는 대용량 테이블 풀스캔, (c) 동시 요청 폭주로 DB 커넥션·락이 경합하는 상황에서 드러난다 — 지금 이 API 쌍은 그 조건에 해당하지 않는다는 점을 그대로 보고한다.
+    </div>
+  </div>
+
+  <!-- ===================== PANEL 3 ===================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-num">TEST 03</div>
+        <h2>웹훅 수신 부하 — 30명 동시, 5회 반복</h2>
+      </div>
+    </div>
+    <p class="panel-desc">
+      인증 없이 열려 있고 <code class="mono" style="font-size:12.5px">X-Webhook-Secret</code> 헤더로만 검증하는 <code class="mono" style="font-size:12.5px">POST /api/incidents/webhook</code>에 심각도 4종을 순환시키며 150건을 동시에 흘려 넣었다.
+    </p>
+    <div class="config-row">
+      <span class="pill">30 users</span>
+      <span class="pill">ramp-up 5s</span>
+      <span class="pill">loop ×5</span>
+      <span class="pill">150 req total</span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="label">Throughput</div><div class="value">31.0<small> req/s</small></div></div>
+      <div class="stat"><div class="label">Error rate</div><div class="value" style="color:var(--good)">0.00<small>%</small></div></div>
+      <div class="stat"><div class="label">Average</div><div class="value">10.0<small> ms</small></div></div>
+      <div class="stat"><div class="label">95% Line</div><div class="value">17<small> ms</small></div></div>
+      <div class="stat"><div class="label">Max</div><div class="value">134<small> ms</small></div></div>
+    </div>
+    <p class="metric-note" style="margin-top:14px;">150건 전부 DB에 정상 적재 확인. 최대값 134ms는 초반 커넥션 워밍업 구간의 단발성 값으로, 95% 라인(17ms)과 큰 괴리가 있어 이상치로 판단.</p>
+  </div>
+
+  <footer>
+    <div class="files">
+      perf-test/01-optimistic-lock.jmx · results/01-optimistic-lock-result.jtl (+run2, run3)<br/>
+      perf-test/02-realtime-stats.jmx · results/02-realtime-result.jtl<br/>
+      perf-test/02-snapshot-stats.jmx · results/02-snapshot-result.jtl<br/>
+      perf-test/03-webhook-load.jmx · results/03-webhook-result.jtl
+    </div>
+    <div class="cmd">jmeter -n -t &lt;plan&gt;.jmx -l results/&lt;result&gt;.jtl</div>
+    <p class="fine">모든 수치는 로컬 개발 환경(MySQL 8.0, Redis 미사용)에서 실측한 값이며 과장 없이 그대로 옮겼다. 재현 절차와 원본 로그는 위 파일에 포함되어 있다.</p>
+  </footer>
+
+</div>
+</div>

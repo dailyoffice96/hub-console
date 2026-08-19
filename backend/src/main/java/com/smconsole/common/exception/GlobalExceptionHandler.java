@@ -3,11 +3,11 @@ package com.smconsole.common.exception;
 import com.smconsole.ai.AiAnalysisException;
 import com.smconsole.excel.ExcelExportException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,10 +23,13 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 동시에 여러 관리자가 같은 데이터를 수정하면 발생하는 낙관적 락 충돌.
-    // 데이터를 덮어쓰지 않도록 409로 응답해서 새로고침 후 다시 시도하게 한다.
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ErrorResponse> handleOptimisticLock(ObjectOptimisticLockingFailureException e){
+    // 동시에 여러 관리자가 같은 데이터를 수정하면 발생하는 동시성 충돌.
+    // ObjectOptimisticLockingFailureException(버전 불일치)뿐 아니라, 완전히 동시에 몰린 UPDATE가
+    // InnoDB 데드락으로 번져서 나오는 CannotAcquireLockException도 같은 부모(ConcurrencyFailureException)를
+    // 잡아서 함께 처리한다 - 둘 다 "누군가 같은 데이터를 동시에 건드렸다"는 같은 원인이고, 클라이언트가
+    // 취해야 할 행동(새로고침 후 재시도)도 동일하다. 데이터를 덮어쓰지 않도록 409로 응답한다.
+    @ExceptionHandler(ConcurrencyFailureException.class)
+    public ResponseEntity<ErrorResponse> handleConcurrencyFailure(ConcurrencyFailureException e){
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse("다른 관리자가 해당 사항을 이미 수정했습니다. 새로고침 후 시도해 주세요."));

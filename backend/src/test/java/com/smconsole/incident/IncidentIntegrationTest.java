@@ -22,7 +22,14 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -151,6 +158,74 @@ class IncidentIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(staleUpdateBody))
                 .andExpect(status().isConflict());
+    }
+
+    // 위 테스트와 달리 진짜로 동시에(스레드 배리어로 타이밍을 맞춰서) 5개 요청을 쏜다.
+    // 이 경우 버전 비교 자체는 통과한 요청들끼리 같은 행에 UPDATE가 몰리면서 InnoDB 데드락
+    // (CannotAcquireLockException)이 날 수 있는데, 이것도 결국 "동시 수정 충돌"이므로
+    // 500이 아니라 409로 응답해야 한다 (GlobalExceptionHandler가 ConcurrencyFailureException을
+    // 잡도록 고친 부분에 대한 회귀 테스트).
+    @Test
+    void 완전히_동시에_들어온_상태변경_요청은_500이_아니라_409로_처리된다() throws Exception {
+        String createBody = """
+                {
+                  "title": "동시성 통합테스트 장애",
+                  "content": "완전 동시 요청 테스트용",
+                  "severity": "HIGH"
+                }
+                """;
+
+        MvcResult createResult = mockMvc.perform(post("/api/incidents")
+                        .session(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Integer id = JsonPath.read(createResult.getResponse().getContentAsString(), "$.id");
+        createdIncidentIds.add(id.longValue());
+
+        MvcResult detailResult = mockMvc.perform(get("/api/incidents/{id}", id).session(session))
+                .andExpect(status().isOk())
+                .andReturn();
+        Integer currentVersion = JsonPath.read(detailResult.getResponse().getContentAsString(), "$.version");
+
+        String body = String.format("""
+                {"status": "IN_PROGRESS", "version": %d}
+                """, currentVersion);
+
+        int threadCount = 5;
+        ExecutorService pool = Executors.newFixedThreadPool(threadCount);
+        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        List<Callable<Integer>> tasks = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            tasks.add(() -> {
+                barrier.await(10, TimeUnit.SECONDS);
+                return mockMvc.perform(put("/api/incidents/{id}/status", id)
+                                .session(session)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body))
+                        .andReturn().getResponse().getStatus();
+            });
+        }
+
+        List<Future<Integer>> futures = pool.invokeAll(tasks, 30, TimeUnit.SECONDS);
+        pool.shutdown();
+
+        List<Integer> statusCodes = new ArrayList<>();
+        for (Future<Integer> future : futures) {
+            statusCodes.add(future.get());
+        }
+
+        long okCount = statusCodes.stream().filter(code -> code == 200).count();
+        long conflictCount = statusCodes.stream().filter(code -> code == 409).count();
+        long unexpectedCount = statusCodes.stream().filter(code -> code != 200 && code != 409).count();
+
+        assertThat(unexpectedCount)
+                .as("200/409 이외의 상태코드(주로 500)가 나오면 안 된다: " + statusCodes)
+                .isZero();
+        assertThat(okCount).isEqualTo(1);
+        assertThat(conflictCount).isEqualTo(threadCount - 1L);
     }
 
     @Test

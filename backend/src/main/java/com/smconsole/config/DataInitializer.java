@@ -20,13 +20,17 @@ import com.smconsole.user.UserRepository;
 import com.smconsole.user.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+// local 프로파일에서만 동작한다. 이게 없으면 운영 DB가 비어있는 상태로 첫 배포될 때
+// SUPER_ADMIN 계정(super01/1234)을 포함한 데모 계정/더미 데이터가 그대로 운영에 생성된다.
 @Component
+@Profile("local")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

@@ -5,8 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+// local 프로파일에서만 동작한다. 가드가 없으면 운영 DB가 비어있는 상태로 뜰 때마다
+// 외부 API(randomuser.me) 호출 결과에 서버 부팅 자체가 좌우된다(응답 지연/실패 시 부팅 실패).
 @Configuration
+@Profile("local")
 @RequiredArgsConstructor
 public class ExternalUserInitializer implements CommandLineRunner{
 
